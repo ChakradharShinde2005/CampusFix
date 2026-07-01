@@ -206,18 +206,43 @@ def my_complaints():
     if "email" not in session:
         return redirect("/login")
 
+    search = request.args.get("search", "")
+
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
-    cursor.execute(
-        "SELECT * FROM complaints WHERE email=? ORDER BY id DESC",
-        (session["email"],)
-    )
+    if search:
+        cursor.execute("""
+            SELECT * FROM complaints
+            WHERE email=?
+            AND (
+                title LIKE ?
+                OR department LIKE ?
+                OR status LIKE ?
+                OR date LIKE ?
+            )
+            ORDER BY id DESC
+        """, (
+            session["email"],
+            f"%{search}%",
+            f"%{search}%",
+            f"%{search}%",
+            f"%{search}%"
+        ))
+    else:
+        cursor.execute(
+            "SELECT * FROM complaints WHERE email=? ORDER BY id DESC",
+            (session["email"],)
+        )
 
     complaints = cursor.fetchall()
     conn.close()
 
-    return render_template("my_complaints.html", complaints=complaints)
+    return render_template(
+        "my_complaints.html",
+        complaints=complaints,
+        search=search
+    )
 
 
 @app.route("/admin_dashboard")
@@ -228,16 +253,77 @@ def admin_dashboard():
     if session["role"] != "admin":
         return "Access Denied! Admin only."
 
+    search = request.args.get("search", "")
+    status_filter = request.args.get("status", "")
+
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM complaints ORDER BY id DESC")
+    query = "SELECT * FROM complaints WHERE 1=1"
+    params = []
+
+    if search:
+        query += """
+        AND (
+            student_name LIKE ?
+            OR email LIKE ?
+            OR title LIKE ?
+            OR department LIKE ?
+            OR description LIKE ?
+            OR date LIKE ?
+        )
+        """
+        params.extend([f"%{search}%"] * 6)
+
+    if status_filter:
+        query += " AND status=?"
+        params.append(status_filter)
+
+    query += " ORDER BY id DESC"
+
+    cursor.execute(query, params)
     complaints = cursor.fetchall()
+
+    cursor.execute("SELECT COUNT(*) FROM complaints")
+    total_complaints = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM complaints WHERE status='Pending'")
+    pending_complaints = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM complaints WHERE status='In Progress'")
+    progress_complaints = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM complaints WHERE status='Resolved'")
+    resolved_complaints = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM complaints WHERE status='Rejected'")
+    rejected_complaints = cursor.fetchone()[0]
+
+    cursor.execute("""
+        SELECT department, COUNT(*)
+        FROM complaints
+        GROUP BY department
+    """)
+    department_data = cursor.fetchall()
+
+    department_labels = [row[0] for row in department_data]
+    department_counts = [row[1] for row in department_data]
 
     conn.close()
 
-    return render_template("admin_dashboard.html", complaints=complaints)
-
+    return render_template(
+        "admin_dashboard.html",
+        complaints=complaints,
+        total_complaints=total_complaints,
+        pending_complaints=pending_complaints,
+        progress_complaints=progress_complaints,
+        resolved_complaints=resolved_complaints,
+        rejected_complaints=rejected_complaints,
+        search=search,
+        status_filter=status_filter,
+        department_labels=department_labels,
+        department_counts=department_counts
+    )
 
 @app.route("/update_status/<int:complaint_id>", methods=["POST"])
 def update_status(complaint_id):

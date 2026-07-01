@@ -12,7 +12,6 @@
 
 <nav class="navbar navbar-dark bg-primary px-4">
     <a class="navbar-brand fw-bold" href="/admin_dashboard">CampusFix Admin</a>
-
     <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
 </nav>
 
@@ -23,10 +22,99 @@
         <p class="mb-0">Manage all student complaints.</p>
     </div>
 
+    <div class="row g-4 mb-4">
+
+        <div class="col-md">
+            <div class="card shadow border-0 rounded-4 text-center p-4">
+                <h5>Total Complaints</h5>
+                <h2>{{ total_complaints }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md">
+            <div class="card shadow border-0 rounded-4 text-center p-4">
+                <h5>Pending</h5>
+                <h2 class="text-warning">{{ pending_complaints }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md">
+            <div class="card shadow border-0 rounded-4 text-center p-4">
+                <h5>In Progress</h5>
+                <h2 class="text-info">{{ progress_complaints }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md">
+            <div class="card shadow border-0 rounded-4 text-center p-4">
+                <h5>Resolved</h5>
+                <h2 class="text-success">{{ resolved_complaints }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md">
+            <div class="card shadow border-0 rounded-4 text-center p-4">
+                <h5>Rejected</h5>
+                <h2 class="text-danger">{{ rejected_complaints }}</h2>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card shadow border-0 rounded-4 p-4 mb-4">
+
+        <form method="GET" action="/admin_dashboard" class="row g-3">
+
+            <div class="col-md-7">
+                <input type="text"
+                       name="search"
+                       class="form-control"
+                       placeholder="Search by student, email, title, department, date..."
+                       value="{{ search }}">
+            </div>
+
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+
+                    <option value="Pending" {% if status_filter == "Pending" %}selected{% endif %}>
+                        Pending
+                    </option>
+
+                    <option value="In Progress" {% if status_filter == "In Progress" %}selected{% endif %}>
+                        In Progress
+                    </option>
+
+                    <option value="Resolved" {% if status_filter == "Resolved" %}selected{% endif %}>
+                        Resolved
+                    </option>
+
+                    <option value="Rejected" {% if status_filter == "Rejected" %}selected{% endif %}>
+                        Rejected
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    Search
+                </button>
+
+                <a href="/admin_dashboard" class="btn btn-secondary w-100">
+                    Reset
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+
     <div class="card shadow border-0 rounded-4 p-4">
+
         <div class="table-responsive">
 
             <table class="table table-hover align-middle text-center">
+
                 <thead class="table-primary">
                     <tr>
                         <th>Complaint ID</th>
@@ -38,6 +126,7 @@
                         <th>Evidence</th>
                         <th>Date</th>
                         <th>Time</th>
+                        <th>Current Status</th>
                         <th>Status Update</th>
                         <th>Delete</th>
                     </tr>
@@ -46,11 +135,20 @@
                 <tbody>
                     {% for complaint in complaints %}
                     <tr>
-                        <td><b>CF-2026-{{ "%04d"|format(complaint[0]) }}</b></td>
+                        <td>
+                            <b>CF-2026-{{ "%04d"|format(complaint[0]) }}</b>
+                        </td>
+
                         <td>{{ complaint[1] }}</td>
                         <td>{{ complaint[2] }}</td>
                         <td>{{ complaint[3] }}</td>
-                        <td><span class="badge bg-primary">{{ complaint[4] }}</span></td>
+
+                        <td>
+                            <span class="badge bg-primary">
+                                {{ complaint[4] }}
+                            </span>
+                        </td>
+
                         <td>{{ complaint[5] }}</td>
 
                         <td>
@@ -66,19 +164,47 @@
 
                         <td>{{ complaint[8] }}</td>
                         <td>{{ complaint[9] }}</td>
+                        <td>
+    {% if complaint[7] == "Pending" %}
+        <span class="badge bg-warning text-dark">Pending</span>
+    {% elif complaint[7] == "In Progress" %}
+        <span class="badge bg-info text-dark">In Progress</span>
+    {% elif complaint[7] == "Resolved" %}
+        <span class="badge bg-success">Resolved</span>
+    {% elif complaint[7] == "Rejected" %}
+        <span class="badge bg-danger">Rejected</span>
+    {% else %}
+        <span class="badge bg-secondary">{{ complaint[7] }}</span>
+    {% endif %}
+</td>
 
                         <td>
-                            <form method="POST" action="/update_status/{{ complaint[0] }}" class="d-flex gap-2">
+                            <form method="POST"
+                                  action="/update_status/{{ complaint[0] }}"
+                                  class="d-flex gap-2">
+
                                 <select name="status" class="form-select form-select-sm">
-                                    <option {% if complaint[7] == "Pending" %}selected{% endif %}>Pending</option>
-                                    <option {% if complaint[7] == "In Progress" %}selected{% endif %}>In Progress</option>
-                                    <option {% if complaint[7] == "Resolved" %}selected{% endif %}>Resolved</option>
-                                    <option {% if complaint[7] == "Rejected" %}selected{% endif %}>Rejected</option>
+                                    <option {% if complaint[7] == "Pending" %}selected{% endif %}>
+                                        Pending
+                                    </option>
+
+                                    <option {% if complaint[7] == "In Progress" %}selected{% endif %}>
+                                        In Progress
+                                    </option>
+
+                                    <option {% if complaint[7] == "Resolved" %}selected{% endif %}>
+                                        Resolved
+                                    </option>
+
+                                    <option {% if complaint[7] == "Rejected" %}selected{% endif %}>
+                                        Rejected
+                                    </option>
                                 </select>
 
                                 <button type="submit" class="btn btn-success btn-sm">
                                     Update
                                 </button>
+
                             </form>
                         </td>
 
@@ -96,6 +222,7 @@
             </table>
 
         </div>
+
     </div>
 
 </div>

@@ -28,6 +28,23 @@
     </div>
 
     <div class="card shadow border-0 rounded-4 p-4">
+        <form method="GET" action="/my_complaints" class="mb-4">
+    <div class="input-group">
+        <input type="text"
+               name="search"
+               class="form-control"
+               placeholder="Search by title, department, status or date..."
+               value="{{ search }}">
+
+        <button class="btn btn-primary" type="submit">
+            Search
+        </button>
+
+        <a href="/my_complaints" class="btn btn-secondary">
+            Reset
+        </a>
+    </div>
+</form>
         <div class="table-responsive">
 
             <table class="table table-hover align-middle text-center">

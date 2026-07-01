@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Complaints | CampusFix</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body style="background:#f4f7fb;">
+
+<nav class="navbar navbar-dark bg-primary px-4">
+    <a class="navbar-brand fw-bold" href="/student_dashboard">CampusFix</a>
+
+    <div>
+        <a href="/student_dashboard" class="btn btn-light btn-sm">Dashboard</a>
+        <a href="/add_complaint" class="btn btn-outline-light btn-sm">Add Complaint</a>
+        <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+
+    <div class="bg-primary text-white p-4 rounded-4 mb-4">
+        <h2>My Complaints</h2>
+        <p class="mb-0">Track your submitted complaints and current status.</p>
+    </div>
+
+    <div class="card shadow border-0 rounded-4 p-4">
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle text-center">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Complaint ID</th>
+                        <th>Title</th>
+                        <th>Department</th>
+                        <th>Description</th>
+                        <th>Evidence</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for complaint in complaints %}
+                    <tr>
+                        <td><b>CF-2026-{{ "%04d"|format(complaint[0]) }}</b></td>
+                        <td>{{ complaint[3] }}</td>
+                        <td><span class="badge bg-primary">{{ complaint[4] }}</span></td>
+                        <td>{{ complaint[5] }}</td>
+
+                        <td>
+                            {% if complaint[6] %}
+                                <img src="{{ url_for('static', filename='uploads/' + complaint[6]) }}"
+                                     width="70"
+                                     height="55"
+                                     style="object-fit:cover;border-radius:10px;">
+                            {% else %}
+                                <span class="text-muted">No Image</span>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ complaint[8] }}</td>
+                        <td>{{ complaint[9] }}</td>
+
+                        <td>
+                            {% if complaint[7] == "Pending" %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% elif complaint[7] == "Resolved" %}
+                                <span class="badge bg-success">Resolved</span>
+                            {% elif complaint[7] == "Rejected" %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ complaint[7] }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

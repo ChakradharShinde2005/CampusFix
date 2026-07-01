@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Complaint | CampusFix</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body{
+            background:#f4f7fb;
+            font-family:Arial, Helvetica, sans-serif;
+        }
+
+        .navbar{
+            background:#0d6efd;
+        }
+
+        .card-box{
+            max-width:700px;
+            margin:50px auto;
+            border:none;
+            border-radius:20px;
+            box-shadow:0 10px 25px rgba(0,0,0,.08);
+        }
+
+        .card-header{
+            background:linear-gradient(135deg,#0d6efd,#6610f2);
+            color:white;
+            border-radius:20px 20px 0 0 !important;
+            padding:20px;
+        }
+
+        .btn-submit{
+            border-radius:30px;
+            padding:10px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark px-4">
+
+    <a class="navbar-brand fw-bold" href="/student_dashboard">
+        <i class="bi bi-tools"></i>
+        CampusFix
+    </a>
+
+    <a href="/student_dashboard" class="btn btn-light">
+        <i class="bi bi-arrow-left"></i>
+        Dashboard
+    </a>
+
+</nav>
+
+<div class="container">
+
+    <div class="card card-box">
+
+        <div class="card-header">
+            <h3 class="mb-0">
+                <i class="bi bi-plus-circle"></i>
+                Register New Complaint
+            </h3>
+        </div>
+
+        <div class="card-body p-4">
+
+            <form method="POST"
+                  action="/add_complaint"
+                  enctype="multipart/form-data">
+
+                <div class="mb-3">
+
+                    <label class="form-label">Complaint Title</label>
+
+                    <input type="text"
+                           class="form-control"
+                           name="title"
+                           placeholder="Enter complaint title"
+                           required>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label">Department</label>
+
+                    <select class="form-select"
+                            name="department"
+                            required>
+
+                        <option value="">Select Department</option>
+
+                        <option>Library</option>
+                        <option>Computer Lab</option>
+                        <option>Wi-Fi</option>
+                        <option>Canteen</option>
+                        <option>Washroom</option>
+                        <option>Classroom</option>
+                        <option>Electricity</option>
+                        <option>Transport</option>
+
+                    </select>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label">Complaint Description</label>
+
+                    <textarea class="form-control"
+                              rows="5"
+                              name="description"
+                              placeholder="Write your complaint here..."
+                              required></textarea>
+
+                </div>
+
+                <div class="mb-4">
+
+                    <label class="form-label">
+                        Upload Evidence (Optional)
+                    </label>
+
+                    <input type="file"
+                           class="form-control"
+                           name="image"
+                           accept="image/*">
+
+                </div>
+
+                <button class="btn btn-primary w-100 btn-submit">
+
+                    <i class="bi bi-send-fill"></i>
+
+                    Submit Complaint
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

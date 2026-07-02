@@ -15,7 +15,7 @@
     <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
 </nav>
 
-<div class="container mt-4">
+<div class="container-fluid mt-4 px-4">
 
     <div class="bg-primary text-white p-4 rounded-4 mb-4">
         <h2>Admin Dashboard</h2>
@@ -23,7 +23,6 @@
     </div>
 
     <div class="row g-4 mb-4">
-
         <div class="col-md">
             <div class="card shadow border-0 rounded-4 text-center p-4">
                 <h5>Total Complaints</h5>
@@ -58,63 +57,54 @@
                 <h2 class="text-danger">{{ rejected_complaints }}</h2>
             </div>
         </div>
-
     </div>
 
     <div class="card shadow border-0 rounded-4 p-4 mb-4">
-
         <form method="GET" action="/admin_dashboard" class="row g-3">
 
-            <div class="col-md-7">
+            <div class="col-md-4">
                 <input type="text"
                        name="search"
                        class="form-control"
-                       placeholder="Search by student, email, title, department, date..."
+                       placeholder="Search by student, email, title, date..."
                        value="{{ search }}">
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <select name="status" class="form-select">
                     <option value="">All Status</option>
-
-                    <option value="Pending" {% if status_filter == "Pending" %}selected{% endif %}>
-                        Pending
-                    </option>
-
-                    <option value="In Progress" {% if status_filter == "In Progress" %}selected{% endif %}>
-                        In Progress
-                    </option>
-
-                    <option value="Resolved" {% if status_filter == "Resolved" %}selected{% endif %}>
-                        Resolved
-                    </option>
-
-                    <option value="Rejected" {% if status_filter == "Rejected" %}selected{% endif %}>
-                        Rejected
-                    </option>
+                    <option value="Pending" {% if status_filter == "Pending" %}selected{% endif %}>Pending</option>
+                    <option value="In Progress" {% if status_filter == "In Progress" %}selected{% endif %}>In Progress</option>
+                    <option value="Resolved" {% if status_filter == "Resolved" %}selected{% endif %}>Resolved</option>
+                    <option value="Rejected" {% if status_filter == "Rejected" %}selected{% endif %}>Rejected</option>
                 </select>
             </div>
 
-            <div class="col-md-2 d-flex gap-2">
-                <button type="submit" class="btn btn-primary w-100">
-                    Search
-                </button>
+            <div class="col-md-3">
+                <select name="department" class="form-select">
+                    <option value="">All Departments</option>
+                    <option value="Library" {% if department_filter == "Library" %}selected{% endif %}>Library</option>
+                    <option value="Computer Lab" {% if department_filter == "Computer Lab" %}selected{% endif %}>Computer Lab</option>
+                    <option value="Wi-Fi" {% if department_filter == "Wi-Fi" %}selected{% endif %}>Wi-Fi</option>
+                    <option value="Canteen" {% if department_filter == "Canteen" %}selected{% endif %}>Canteen</option>
+                    <option value="Washroom" {% if department_filter == "Washroom" %}selected{% endif %}>Washroom</option>
+                    <option value="Classroom" {% if department_filter == "Classroom" %}selected{% endif %}>Classroom</option>
+                    <option value="Electricity" {% if department_filter == "Electricity" %}selected{% endif %}>Electricity</option>
+                    <option value="Transport" {% if department_filter == "Transport" %}selected{% endif %}>Transport</option>
+                </select>
+            </div>
 
-                <a href="/admin_dashboard" class="btn btn-secondary w-100">
-                    Reset
-                </a>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">Search</button>
+                <a href="/admin_dashboard" class="btn btn-secondary w-100">Reset</a>
             </div>
 
         </form>
-
     </div>
 
     <div class="card shadow border-0 rounded-4 p-4">
-
         <div class="table-responsive">
-
             <table class="table table-hover align-middle text-center">
-
                 <thead class="table-primary">
                     <tr>
                         <th>Complaint ID</th>
@@ -135,28 +125,41 @@
                 <tbody>
                     {% for complaint in complaints %}
                     <tr>
-                        <td>
-                            <b>CF-2026-{{ "%04d"|format(complaint[0]) }}</b>
-                        </td>
-
+                        <td><b>CF-2026-{{ "%04d"|format(complaint[0]) }}</b></td>
                         <td>{{ complaint[1] }}</td>
                         <td>{{ complaint[2] }}</td>
                         <td>{{ complaint[3] }}</td>
 
                         <td>
-                            <span class="badge bg-primary">
-                                {{ complaint[4] }}
-                            </span>
+                            <span class="badge bg-primary">{{ complaint[4] }}</span>
                         </td>
 
-                        <td>{{ complaint[5] }}</td>
+                        <td style="min-width:220px;">{{ complaint[5] }}</td>
 
                         <td>
                             {% if complaint[6] %}
                                 <img src="{{ url_for('static', filename='uploads/' + complaint[6]) }}"
                                      width="70"
                                      height="55"
-                                     style="object-fit:cover;border-radius:10px;">
+                                     style="object-fit:cover;border-radius:10px; cursor:pointer;"
+                                     data-bs-toggle="modal"
+                                     data-bs-target="#imageModal{{ complaint[0] }}">
+
+                                <div class="modal fade" id="imageModal{{ complaint[0] }}" tabindex="-1">
+                                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                                        <div class="modal-content rounded-4">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Complaint Evidence</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+
+                                            <div class="modal-body text-center">
+                                                <img src="{{ url_for('static', filename='uploads/' + complaint[6]) }}"
+                                                     class="img-fluid rounded-3">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             {% else %}
                                 <span class="text-muted">No Image</span>
                             {% endif %}
@@ -164,47 +167,34 @@
 
                         <td>{{ complaint[8] }}</td>
                         <td>{{ complaint[9] }}</td>
+
                         <td>
-    {% if complaint[7] == "Pending" %}
-        <span class="badge bg-warning text-dark">Pending</span>
-    {% elif complaint[7] == "In Progress" %}
-        <span class="badge bg-info text-dark">In Progress</span>
-    {% elif complaint[7] == "Resolved" %}
-        <span class="badge bg-success">Resolved</span>
-    {% elif complaint[7] == "Rejected" %}
-        <span class="badge bg-danger">Rejected</span>
-    {% else %}
-        <span class="badge bg-secondary">{{ complaint[7] }}</span>
-    {% endif %}
-</td>
+                            {% if complaint[7] == "Pending" %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% elif complaint[7] == "In Progress" %}
+                                <span class="badge bg-info text-dark">In Progress</span>
+                            {% elif complaint[7] == "Resolved" %}
+                                <span class="badge bg-success">Resolved</span>
+                            {% elif complaint[7] == "Rejected" %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ complaint[7] }}</span>
+                            {% endif %}
+                        </td>
 
                         <td>
                             <form method="POST"
                                   action="/update_status/{{ complaint[0] }}"
-                                  class="d-flex gap-2">
+                                  class="d-flex gap-2 justify-content-center">
 
-                                <select name="status" class="form-select form-select-sm">
-                                    <option {% if complaint[7] == "Pending" %}selected{% endif %}>
-                                        Pending
-                                    </option>
-
-                                    <option {% if complaint[7] == "In Progress" %}selected{% endif %}>
-                                        In Progress
-                                    </option>
-
-                                    <option {% if complaint[7] == "Resolved" %}selected{% endif %}>
-                                        Resolved
-                                    </option>
-
-                                    <option {% if complaint[7] == "Rejected" %}selected{% endif %}>
-                                        Rejected
-                                    </option>
+                                <select name="status" class="form-select form-select-sm" style="min-width:130px;">
+                                    <option value="Pending" {% if complaint[7] == "Pending" %}selected{% endif %}>Pending</option>
+                                    <option value="In Progress" {% if complaint[7] == "In Progress" %}selected{% endif %}>In Progress</option>
+                                    <option value="Resolved" {% if complaint[7] == "Resolved" %}selected{% endif %}>Resolved</option>
+                                    <option value="Rejected" {% if complaint[7] == "Rejected" %}selected{% endif %}>Rejected</option>
                                 </select>
 
-                                <button type="submit" class="btn btn-success btn-sm">
-                                    Update
-                                </button>
-
+                                <button type="submit" class="btn btn-success btn-sm">Update</button>
                             </form>
                         </td>
 
@@ -216,16 +206,22 @@
                             </a>
                         </td>
                     </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="12" class="text-muted py-4">
+                            No complaints found.
+                        </td>
+                    </tr>
                     {% endfor %}
                 </tbody>
-
             </table>
-
         </div>
-
     </div>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

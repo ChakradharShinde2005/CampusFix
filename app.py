@@ -255,6 +255,7 @@ def admin_dashboard():
 
     search = request.args.get("search", "")
     status_filter = request.args.get("status", "")
+    department_filter = request.args.get("department", "")
 
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
@@ -278,6 +279,10 @@ def admin_dashboard():
     if status_filter:
         query += " AND status=?"
         params.append(status_filter)
+
+    if department_filter:
+        query += " AND department=?"
+        params.append(department_filter)
 
     query += " ORDER BY id DESC"
 
@@ -319,8 +324,9 @@ def admin_dashboard():
         progress_complaints=progress_complaints,
         resolved_complaints=resolved_complaints,
         rejected_complaints=rejected_complaints,
-        search=search,
+                search=search,
         status_filter=status_filter,
+        department_filter=department_filter,
         department_labels=department_labels,
         department_counts=department_counts
     )
@@ -367,7 +373,73 @@ def delete_complaint(complaint_id):
 
     return redirect("/admin_dashboard")
 
+@app.route("/profile")
+def profile():
+    if "email" not in session:
+        return redirect("/login")
 
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT COUNT(*) FROM complaints WHERE email=?", (session["email"],))
+    total_complaints = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM complaints WHERE email=? AND status='Pending'", (session["email"],))
+    pending_complaints = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM complaints WHERE email=? AND status='Resolved'", (session["email"],))
+    resolved_complaints = cursor.fetchone()[0]
+
+    conn.close()
+
+    return render_template(
+        "profile.html",
+        name=session["name"],
+        email=session["email"],
+        role=session["role"],
+        total_complaints=total_complaints,
+        pending_complaints=pending_complaints,
+        resolved_complaints=resolved_complaints
+    )
+
+
+@app.route("/change_password", methods=["GET", "POST"])
+def change_password():
+    if "email" not in session:
+        return redirect("/login")
+
+    if request.method == "POST":
+        current_password = request.form["current_password"]
+        new_password = request.form["new_password"]
+        confirm_password = request.form["confirm_password"]
+
+        if new_password != confirm_password:
+            return "New password and confirm password do not match."
+
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "SELECT password FROM users WHERE email=?",
+            (session["email"],)
+        )
+        user = cursor.fetchone()
+
+        if user and user[0] == current_password:
+            cursor.execute(
+                "UPDATE users SET password=? WHERE email=?",
+                (new_password, session["email"])
+            )
+
+            conn.commit()
+            conn.close()
+
+            return redirect("/profile")
+        else:
+            conn.close()
+            return "Current password is incorrect."
+
+    return render_template("change_password.html")
 @app.route("/logout")
 def logout():
     session.clear()

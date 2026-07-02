@@ -1,8 +1,12 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, make_response
 import sqlite3
 from datetime import datetime
 import os
 from werkzeug.utils import secure_filename
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from io import BytesIO
+import csv
 
 app = Flask(__name__)
 app.secret_key = "campusfix_secret_key"
@@ -38,10 +42,22 @@ def init_db():
             description TEXT NOT NULL,
             image TEXT,
             status TEXT DEFAULT 'Pending',
+            admin_reply TEXT DEFAULT '',
+            last_updated TEXT,
             date TEXT,
             time TEXT
         )
     """)
+
+    try:
+        cursor.execute("ALTER TABLE complaints ADD COLUMN admin_reply TEXT DEFAULT ''")
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE complaints ADD COLUMN last_updated TEXT")
+    except sqlite3.OperationalError:
+        pass
 
     cursor.execute("SELECT * FROM users WHERE email='admin@gmail.com'")
     admin = cursor.fetchone()
@@ -79,7 +95,6 @@ def register():
             conn.commit()
             conn.close()
             return redirect("/login")
-
         except sqlite3.IntegrityError:
             conn.close()
             return "Email already registered. Please login."
@@ -324,12 +339,13 @@ def admin_dashboard():
         progress_complaints=progress_complaints,
         resolved_complaints=resolved_complaints,
         rejected_complaints=rejected_complaints,
-                search=search,
+        search=search,
         status_filter=status_filter,
         department_filter=department_filter,
         department_labels=department_labels,
         department_counts=department_counts
     )
+
 
 @app.route("/update_status/<int:complaint_id>", methods=["POST"])
 def update_status(complaint_id):
@@ -340,21 +356,100 @@ def update_status(complaint_id):
         return "Access Denied! Admin only."
 
     new_status = request.form["status"]
+    admin_reply = request.form.get("admin_reply", "")
+    last_updated = datetime.now().strftime("%d-%m-%Y %I:%M %p")
 
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
-    cursor.execute(
-        "UPDATE complaints SET status=? WHERE id=?",
-        (new_status, complaint_id)
-    )
+    cursor.execute("""
+        UPDATE complaints
+        SET status=?, admin_reply=?, last_updated=?
+        WHERE id=?
+    """, (new_status, admin_reply, last_updated, complaint_id))
 
     conn.commit()
     conn.close()
 
     return redirect("/admin_dashboard")
+@app.route("/export_pdf")
+def export_pdf():
+    if "email" not in session:
+        return redirect("/login")
 
+    if session["role"] != "admin":
+        return "Access Denied! Admin only."
 
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM complaints ORDER BY id DESC")
+    complaints = cursor.fetchall()
+    conn.close()
+
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+
+    y = height - 50
+    pdf.setFont("Helvetica-Bold", 18)
+    pdf.drawString(180, y, "CampusFix Complaints Report")
+
+    y -= 40
+    pdf.setFont("Helvetica", 10)
+
+    for c in complaints:
+        if y < 80:
+            pdf.showPage()
+            y = height - 50
+            pdf.setFont("Helvetica", 10)
+
+        pdf.drawString(40, y, f"ID: CF-2026-{c[0]:04d}")
+        y -= 15
+        pdf.drawString(40, y, f"Student: {c[1]} | Email: {c[2]}")
+        y -= 15
+        pdf.drawString(40, y, f"Title: {c[3]} | Department: {c[4]} | Status: {c[7]}")
+        y -= 15
+        pdf.drawString(40, y, f"Date: {c[10]} {c[11]}")
+        y -= 15
+        pdf.drawString(40, y, f"Admin Reply: {c[8] if c[8] else 'No reply'}")
+        y -= 25
+
+    pdf.save()
+    buffer.seek(0)
+
+    response = make_response(buffer.getvalue())
+    response.headers["Content-Type"] = "application/pdf"
+    response.headers["Content-Disposition"] = "attachment; filename=CampusFix_Report.pdf"
+
+    return response
+
+@app.route("/export_csv")
+def export_csv():
+    if "email" not in session:
+        return redirect("/login")
+
+    if session["role"] != "admin":
+        return "Access Denied! Admin only."
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM complaints ORDER BY id DESC")
+    complaints = cursor.fetchall()
+    conn.close()
+
+    output = BytesIO()
+    text_output = output
+
+    data = "ID,Student Name,Email,Title,Department,Description,Status,Admin Reply,Last Updated,Date,Time\n"
+
+    for c in complaints:
+        data += f"CF-2026-{c[0]:04d},{c[1]},{c[2]},{c[3]},{c[4]},{c[5]},{c[7]},{c[8]},{c[9]},{c[10]},{c[11]}\n"
+
+    response = make_response(data)
+    response.headers["Content-Type"] = "text/csv"
+    response.headers["Content-Disposition"] = "attachment; filename=CampusFix_Report.csv"
+
+    return response
 @app.route("/delete_complaint/<int:complaint_id>")
 def delete_complaint(complaint_id):
     if "email" not in session:
@@ -372,6 +467,7 @@ def delete_complaint(complaint_id):
     conn.close()
 
     return redirect("/admin_dashboard")
+
 
 @app.route("/profile")
 def profile():
@@ -440,6 +536,8 @@ def change_password():
             return "Current password is incorrect."
 
     return render_template("change_password.html")
+
+
 @app.route("/logout")
 def logout():
     session.clear()

@@ -29,9 +29,18 @@
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark px-4">
-    <a class="navbar-brand fw-bold" href="/student_dashboard">
-        <i class="bi bi-tools"></i> CampusFix
-    </a>
+  <a href="/notification" class="btn btn-warning me-2 position-relative">
+
+    <i class="bi bi-bell-fill"></i>
+    Updates
+
+    {% if notifications > 0 %}
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        {{ notifications }}
+    </span>
+    {% endif %}
+
+</a>
 
     <div class="ms-auto">
         <a href="/my_complaints" class="btn btn-warning me-2">

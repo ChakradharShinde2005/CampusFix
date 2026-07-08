@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, make_response
+from flask import Flask, render_template, request, redirect, session, flash
 import sqlite3
 from datetime import datetime
 import os
@@ -13,6 +13,12 @@ app.secret_key = "campusfix_secret_key"
 
 UPLOAD_FOLDER = "static/uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
+
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -58,6 +64,10 @@ def init_db():
         cursor.execute("ALTER TABLE complaints ADD COLUMN last_updated TEXT")
     except sqlite3.OperationalError:
         pass
+    try:
+        cursor.execute("ALTER TABLE complaints ADD COLUMN priority TEXT DEFAULT 'Medium'")
+    except sqlite3.OperationalError:
+        pass
 
     cursor.execute("SELECT * FROM users WHERE email='admin@gmail.com'")
     admin = cursor.fetchone()
@@ -80,9 +90,17 @@ def home():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        name = request.form["name"]
-        email = request.form["email"]
-        password = request.form["password"]
+        name = request.form["name"].strip()
+        email = request.form["email"].strip()
+        password = request.form["password"].strip()
+
+        if name == "" or email == "" or password == "":
+            flash("All fields are required.", "danger")
+            return redirect("/register")
+
+        if len(password) < 6:
+            flash("Password must be at least 6 characters long.", "danger")
+            return redirect("/register")
 
         conn = sqlite3.connect("database.db")
         cursor = conn.cursor()
@@ -94,10 +112,15 @@ def register():
             )
             conn.commit()
             conn.close()
-            return redirect("/login")
+
+            flash("Registration successful. Please login!", "success")
+            return redirect("/login") 
+        
         except sqlite3.IntegrityError:
             conn.close()
-            return "Email already registered. Please login."
+
+            flash("Email already registered. Please login.", "danger")
+            return redirect("/register")
 
     return render_template("register.html")
 
@@ -125,16 +148,17 @@ def login():
             session["email"] = user[2]
             session["role"] = user[4]
 
+            flash("Login successful!", "success")
+
             if session["role"] == "admin":
                 return redirect("/admin_dashboard")
             else:
                 return redirect("/student_dashboard")
 
-        return "Invalid Email or Password"
+        flash("Invalid email or password!", "danger")
+        return redirect("/login")
 
     return render_template("login.html")
-
-
 @app.route("/student_dashboard")
 def student_dashboard():
     if "email" not in session:
@@ -146,17 +170,35 @@ def student_dashboard():
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
-    cursor.execute("SELECT COUNT(*) FROM complaints WHERE email=?", (session["email"],))
+    cursor.execute(
+        "SELECT COUNT(*) FROM complaints WHERE email=?",
+        (session["email"],)
+    )
     total_complaints = cursor.fetchone()[0]
 
-    cursor.execute("SELECT COUNT(*) FROM complaints WHERE email=? AND status='Pending'", (session["email"],))
+    cursor.execute(
+        "SELECT COUNT(*) FROM complaints WHERE email=? AND status='Pending'",
+        (session["email"],)
+    )
     pending_complaints = cursor.fetchone()[0]
 
-    cursor.execute("SELECT COUNT(*) FROM complaints WHERE email=? AND status='Resolved'", (session["email"],))
+    cursor.execute(
+        "SELECT COUNT(*) FROM complaints WHERE email=? AND status='Resolved'",
+        (session["email"],)
+    )
     resolved_complaints = cursor.fetchone()[0]
 
-    cursor.execute("SELECT COUNT(*) FROM complaints WHERE email=? AND status='Rejected'", (session["email"],))
+    cursor.execute(
+        "SELECT COUNT(*) FROM complaints WHERE email=? AND status='Rejected'",
+        (session["email"],)
+    )
     rejected_complaints = cursor.fetchone()[0]
+
+    cursor.execute(
+        "SELECT COUNT(*) FROM complaints WHERE email=? AND admin_reply != ''",
+        (session["email"],)
+    )
+    notifications = cursor.fetchone()[0]
 
     conn.close()
 
@@ -166,7 +208,8 @@ def student_dashboard():
         total_complaints=total_complaints,
         pending_complaints=pending_complaints,
         resolved_complaints=resolved_complaints,
-        rejected_complaints=rejected_complaints
+        rejected_complaints=rejected_complaints,
+        notifications=notifications
     )
 
 
@@ -176,17 +219,27 @@ def add_complaint():
         return redirect("/login")
 
     if request.method == "POST":
-        title = request.form["title"]
-        department = request.form["department"]
-        description = request.form["description"]
+        title = request.form["title"].strip()
+        department = request.form["department"].strip()
+        description = request.form["description"].strip()
+        priority = request.form["priority"].strip()
+
+        if title == "" or department == "" or description == "" or priority == "":
+            flash("Please fill all complaint details.", "danger")
+            return redirect("/add_complaint")
 
         image = request.files.get("image")
         image_name = ""
 
         if image and image.filename != "":
-            image_name = secure_filename(image.filename)
-            image.save(os.path.join(app.config["UPLOAD_FOLDER"], image_name))
-
+            if allowed_file(image.filename):
+                image_name = secure_filename(image.filename)
+                image.save(os.path.join(app.config["UPLOAD_FOLDER"], image_name))
+            else:
+                flash("Only JPG, JPEG and PNG images are allowed.", "danger")
+                return redirect("/add_complaint")
+            
+            
         today = datetime.now().strftime("%d-%m-%Y")
         current_time = datetime.now().strftime("%I:%M %p")
 
@@ -195,8 +248,8 @@ def add_complaint():
 
         cursor.execute("""
             INSERT INTO complaints
-            (student_name, email, title, department, description, image, date, time)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            (student_name, email, title, department, description, image, date, time, priority)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             session["name"],
             session["email"],
@@ -205,7 +258,8 @@ def add_complaint():
             description,
             image_name,
             today,
-            current_time
+            current_time,
+            priority
         ))
 
         conn.commit()
@@ -259,7 +313,31 @@ def my_complaints():
         search=search
     )
 
+@app.route("/notifications")
+def notifications():
 
+    if "email" not in session:
+        return redirect("/login")
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT title,status,admin_reply,last_updated
+        FROM complaints
+        WHERE email=?
+        AND admin_reply!=''
+        ORDER BY id DESC
+    """,(session["email"],))
+
+    notifications = cursor.fetchall()
+
+    conn.close()
+
+    return render_template(
+        "notifications.html",
+        notifications=notifications
+    )
 @app.route("/admin_dashboard")
 def admin_dashboard():
     if "email" not in session:
@@ -271,6 +349,7 @@ def admin_dashboard():
     search = request.args.get("search", "")
     status_filter = request.args.get("status", "")
     department_filter = request.args.get("department", "")
+    priority_filter = request.args.get("priority", "")
 
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
@@ -287,9 +366,10 @@ def admin_dashboard():
             OR department LIKE ?
             OR description LIKE ?
             OR date LIKE ?
+            OR priority LIKE ?
         )
         """
-        params.extend([f"%{search}%"] * 6)
+        params.extend([f"%{search}%"] * 7)
 
     if status_filter:
         query += " AND status=?"
@@ -298,6 +378,10 @@ def admin_dashboard():
     if department_filter:
         query += " AND department=?"
         params.append(department_filter)
+
+    if priority_filter:
+        query += " AND priority=?"
+        params.append(priority_filter)
 
     query += " ORDER BY id DESC"
 
@@ -342,6 +426,7 @@ def admin_dashboard():
         search=search,
         status_filter=status_filter,
         department_filter=department_filter,
+        priority_filter=priority_filter,
         department_labels=department_labels,
         department_counts=department_counts
     )

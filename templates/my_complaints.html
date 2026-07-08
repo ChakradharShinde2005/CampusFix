@@ -43,6 +43,7 @@
                         <th>ID</th>
                         <th>Title</th>
                         <th>Department</th>
+                        <th>Priority</th>
                         <th>Evidence</th>
                         <th>Date</th>
                         <th>Status</th>
@@ -55,8 +56,18 @@
                 {% for complaint in complaints %}
                     <tr>
                         <td><b>CF-2026-{{ "%04d"|format(complaint[0]) }}</b></td>
-                        <td>{{ complaint[3] }}</td>
+                        <td style="min-width:120px;">{{ complaint[3] }}</td>
                         <td><span class="badge bg-primary">{{ complaint[4] }}</span></td>
+
+                        <td>
+                            {% if complaint[12] == "High" %}
+                                <span class="badge bg-danger">High</span>
+                            {% elif complaint[12] == "Medium" %}
+                                <span class="badge bg-warning text-dark">Medium</span>
+                            {% else %}
+                                <span class="badge bg-success">Low</span>
+                            {% endif %}
+                        </td>
 
                         <td>
                             {% if complaint[6] %}
@@ -70,7 +81,10 @@
                             {% endif %}
                         </td>
 
-                        <td>{{ complaint[10] }}<br><small>{{ complaint[11] }}</small></td>
+                        <td style="min-width:130px;">
+                            {{ complaint[8] }}<br>
+                            <small>{{ complaint[9] }}</small>
+                        </td>
 
                         <td>
                             {% if complaint[7] == "Pending" %}
@@ -87,9 +101,9 @@
                         </td>
 
                         <td style="min-width:220px;">
-                            {% if complaint[8] %}
-                                {{ complaint[8] }}
-                                <br><small class="text-muted">Updated: {{ complaint[9] }}</small>
+                            {% if complaint[10] %}
+                                {{ complaint[10] }}
+                                <br><small class="text-muted">Updated: {{ complaint[11] }}</small>
                             {% else %}
                                 <span class="text-muted">No reply yet</span>
                             {% endif %}
@@ -116,11 +130,12 @@
                                     <p><b>Complaint ID:</b> CF-2026-{{ "%04d"|format(complaint[0]) }}</p>
                                     <p><b>Title:</b> {{ complaint[3] }}</p>
                                     <p><b>Department:</b> {{ complaint[4] }}</p>
+                                    <p><b>Priority:</b> {{ complaint[12] }}</p>
                                     <p><b>Description:</b> {{ complaint[5] }}</p>
                                     <p><b>Status:</b> {{ complaint[7] }}</p>
-                                    <p><b>Admin Reply:</b> {{ complaint[8] if complaint[8] else "No reply yet" }}</p>
-                                    <p><b>Last Updated:</b> {{ complaint[9] if complaint[9] else "Not updated yet" }}</p>
-                                    <p><b>Date & Time:</b> {{ complaint[10] }} {{ complaint[11] }}</p>
+                                    <p><b>Admin Reply:</b> {{ complaint[10] if complaint[10] else "No reply yet" }}</p>
+                                    <p><b>Last Updated:</b> {{ complaint[11] if complaint[11] else "Not updated yet" }}</p>
+                                    <p><b>Date & Time:</b> {{ complaint[8] }} {{ complaint[9] }}</p>
 
                                     {% if complaint[6] %}
                                         <hr>
@@ -151,7 +166,7 @@
 
                 {% else %}
                     <tr>
-                        <td colspan="8" class="text-muted py-4">No complaints found.</td>
+                        <td colspan="9" class="text-muted py-4">No complaints found.</td>
                     </tr>
                 {% endfor %}
                 </tbody>

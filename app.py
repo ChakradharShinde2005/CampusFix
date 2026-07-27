@@ -1,15 +1,30 @@
-from flask import Flask, render_template, request, redirect, session, flash
+from flask import Flask, render_template, request, redirect, session, flash, make_response
 import sqlite3
 from datetime import datetime
 import os
+from dotenv import load_dotenv
+from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from io import BytesIO
 import csv
+from google import genai
 
+
+load_dotenv()
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+def get_ai_response(prompt):
+    try:
+        response = client.models.generate_content(
+            model="models/gemini-3.6-flash",
+            contents=prompt
+        )
+        return response.text
+    except Exception as e:
+        return f"AI Error: {e}"
 app = Flask(__name__)
-app.secret_key = "campusfix_secret_key"
+app.secret_key = os.getenv("SECRET_KEY", "campusfix_secret_key")
 
 UPLOAD_FOLDER = "static/uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -85,6 +100,10 @@ def init_db():
 @app.route("/")
 def home():
     return render_template("index.html")
+@app.route("/test_ai")
+def test_ai():
+    answer = get_ai_response("Say Hello from CampusFix AI in one short sentence.")
+    return answer
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -268,6 +287,57 @@ def add_complaint():
         return redirect("/my_complaints")
 
     return render_template("add_complaint.html")
+@app.route("/generate_complaint", methods=["POST"])
+def generate_complaint():
+
+    if "email" not in session:
+        return {"success": False, "message": "Unauthorized"}
+
+    problem = request.form.get("problem", "").strip()
+
+    if problem == "":
+        return {
+            "success": False,
+            "message": "Please enter your problem."
+        }
+
+    prompt = f"""
+    You are an AI assistant for CampusFix, a College Complaint Management System.
+
+    Convert the student's problem into a professional complaint.
+
+    Rules:
+    - Maximum 30 to 40 words only.
+    - Use simple and professional English.
+    - Write only one short paragraph.
+    - Do NOT use headings.
+    - Do NOT use Subject.
+    - Do NOT use Greetings.
+    - Do NOT use bullet points.
+    - Return only the complaint description.
+
+    Student Problem:
+    {problem}
+    """
+
+    try:
+
+        response = client.models.generate_content(
+            model="models/gemini-3.6-flash",
+            contents=prompt
+        )
+
+        return {
+            "success": True,
+            "complaint": response.text.strip()
+        }
+
+    except Exception as e:
+
+        return {
+            "success": False,
+            "message": str(e)
+        }
 
 
 @app.route("/my_complaints")

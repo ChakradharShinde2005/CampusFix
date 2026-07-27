@@ -125,12 +125,40 @@
                 <div class="mb-3">
 
                     <label class="form-label">Complaint Description</label>
+                    <div class="mb-3">
 
-                    <textarea class="form-control"
-                              rows="5"
-                              name="description"
-                              placeholder="Write your complaint here..."
-                              required></textarea>
+    <label class="form-label">
+        Describe Your Problem
+    </label>
+
+    <div class="input-group">
+
+        <input type="text"
+               class="form-control"
+               id="aiPrompt"
+               placeholder="Example: WiFi is not working in Lab 3">
+
+        <button type="button"
+                class="btn btn-success"
+                id="generateBtn">
+
+            <i class="bi bi-stars"></i>
+
+            Generate with AI
+
+        </button>
+
+    </div>
+
+</div>
+
+        <textarea
+            class="form-control"
+            id="description"
+            rows="5"
+            name="description"
+            placeholder="Write your complaint here..."
+            required></textarea>
 
                 </div>
 
@@ -164,6 +192,47 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.getElementById("generateBtn").addEventListener("click", async function () {
+
+    const problem = document.getElementById("aiPrompt").value.trim();
+
+    if (problem === "") {
+        alert("Please enter your problem first.");
+        return;
+    }
+
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Generating...';
+
+    const formData = new FormData();
+    formData.append("problem", problem);
+
+    try {
+
+        const response = await fetch("/generate_complaint", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            document.getElementById("description").value = data.complaint;
+        } else {
+            alert(data.message);
+        }
+
+    } catch (err) {
+        alert("Something went wrong while connecting to AI.");
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-stars"></i> Generate with AI';
+
+});
+</script>
 
 </body>
 </html>

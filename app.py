@@ -13,6 +13,7 @@ from google import genai
 
 
 load_dotenv()
+print(os.getenv("GEMINI_API_KEY"))
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 def get_ai_response(prompt):
     try:
@@ -23,6 +24,7 @@ def get_ai_response(prompt):
         return response.text
     except Exception as e:
         return f"AI Error: {e}"
+    
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "campusfix_secret_key")
 

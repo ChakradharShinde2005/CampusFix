@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+<!-- @ts-nocheck -->
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -18,6 +19,7 @@
 
 <div class="container-fluid mt-4 px-4">
 
+
     <div class="bg-primary text-white p-4 rounded-4 mb-4">
         <h2>Admin Dashboard</h2>
         <p class="mb-0">Manage all student complaints.</p>
@@ -32,6 +34,7 @@
             <i class="bi bi-file-earmark-excel-fill"></i> Download CSV Report
         </a>
     </div>
+    
 
     <div class="row g-4 mb-4">
         <div class="col-md">
@@ -129,7 +132,6 @@
     <div class="col-md-6">
         <div class="card shadow border-0 rounded-4 p-4">
             <h4 class="mb-3">Project Health</h4>
-
             <p class="mb-2">Resolved Complaints</p>
             <h2 class="text-success">{{ resolved_complaints }}</h2>
 
@@ -140,6 +142,7 @@
             <h2 class="text-danger">{{ rejected_complaints }}</h2>
         </div>
     </div>
+</div>
 </div>
 <div class="card shadow border-0 rounded-4 p-4 mb-4">
 
@@ -218,7 +221,8 @@
 
         </form>
     </div>
-
+</div>
+</div id="complaintsSection" style="display:none;">
     <div class="card shadow border-0 rounded-4 p-4">
         <div class="table-responsive">
             <table class="table table-hover align-middle text-center">
@@ -400,10 +404,10 @@ const ctx = document.getElementById("departmentChart");
 new Chart(ctx, {
     type: "bar",
     data: {
-        labels: {{ department_labels|tojson }},
+        labels: JSON.parse('{{ department_labels|tojson|safe}}'),
         datasets: [{
             label: "Complaints",
-            data: {{ department_counts|tojson }},
+            data: JSON.parse('{{ department_counts|tojson|safe}}'),
             backgroundColor: [
                 "#0d6efd",
                 "#198754",

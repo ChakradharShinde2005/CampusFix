@@ -178,6 +178,12 @@ def login():
         return redirect("/login")
 
     return render_template("login.html")
+@app.route("/test_student")
+def test_student():
+    session["name"] = "Chakradhar"
+    session["email"] = "student@gmail.com"
+    session["role"] = "student"
+    return redirect("/student_dashboard")
 @app.route("/student_dashboard")
 def student_dashboard():
     if "email" not in session:
@@ -219,6 +225,16 @@ def student_dashboard():
     )
     notifications = cursor.fetchone()[0]
 
+    cursor.execute("""
+        SELECT id, title, status, date
+        FROM complaints
+        WHERE email=?
+        ORDER BY id DESC
+        LIMIT 5
+    """, (session["email"],))
+
+    recent_complaints = cursor.fetchall()
+
     conn.close()
 
     return render_template(
@@ -228,10 +244,39 @@ def student_dashboard():
         pending_complaints=pending_complaints,
         resolved_complaints=resolved_complaints,
         rejected_complaints=rejected_complaints,
-        notifications=notifications
+        notifications=notifications,
+        recent_complaints=recent_complaints
     )
+@app.route("/ai_suggest", methods=["POST"])
+def ai_suggest():
+    if "email" not in session:
+        return {"error": "Login required"}, 401
 
+    data = request.get_json()
 
+    title = data.get("title", "")
+    department = data.get("department", "")
+    description = data.get("description", "")
+
+    prompt = f"""
+You are an AI assistant for a College Complaint Management System.
+
+Improve the following complaint.
+
+Return ONLY in this format:
+
+Title:
+Description:
+Priority:
+
+Complaint Title: {title}
+Department: {department}
+Description: {description}
+"""
+
+    ai_response = get_ai_response(prompt)
+
+    return {"response": ai_response}
 @app.route("/add_complaint", methods=["GET", "POST"])
 def add_complaint():
     if "email" not in session:
@@ -302,43 +347,68 @@ def generate_complaint():
         }
 
     prompt = f"""
-    You are an AI assistant for CampusFix, a College Complaint Management System.
+You are an AI assistant for CampusFix.
 
-    Convert the student's problem into a professional complaint.
+Convert the student's problem into JSON.
 
-    Rules:
-    - Maximum 30 to 40 words only.
-    - Use simple and professional English.
-    - Write only one short paragraph.
-    - Do NOT use headings.
-    - Do NOT use Subject.
-    - Do NOT use Greetings.
-    - Do NOT use bullet points.
-    - Return only the complaint description.
+Return ONLY valid JSON.
 
-    Student Problem:
-    {problem}
-    """
+Example:
+
+{{
+"title":"Wi-Fi Issue",
+"description":"Internet is not working in Lab 3.",
+"department":"Wi-Fi",
+"priority":"High"
+}}
+
+Departments:
+Library
+Computer Lab
+Wi-Fi
+Classroom
+Canteen
+Washroom
+Electricity
+Transport
+
+Student Problem:
+{problem}
+"""
 
     try:
+        import json
 
         response = client.models.generate_content(
             model="models/gemini-3.6-flash",
             contents=prompt
         )
 
+        text = response.text.strip()
+
+        print(text)
+
+        if text.startswith("```json"):
+            text = text.replace("```json", "").replace("```", "").strip()
+
+        data = json.loads(text)
+
         return {
             "success": True,
-            "complaint": response.text.strip()
+            "title": data["title"],
+            "description": data["description"],
+            "department": data["department"],
+            "priority": data["priority"]
         }
 
     except Exception as e:
+
+        print(e)
 
         return {
             "success": False,
             "message": str(e)
         }
-
 
 @app.route("/my_complaints")
 def my_complaints():

@@ -80,6 +80,7 @@
                     <label class="form-label">Complaint Title</label>
 
                     <input type="text"
+                           id="title"
                            class="form-control"
                            name="title"
                            placeholder="Enter complaint title"
@@ -113,7 +114,7 @@
 
                     <label class="form-label">Complaint Priority</label>
 
-                    <select class="form-select" name="priority" required>
+                    <select id="priority" class="form-select" name="priority" required>
                         <option value="Low">Low</option>
                         <option value="Medium" selected>Medium</option>
                         <option value="High">High</option>
@@ -219,10 +220,20 @@ document.getElementById("generateBtn").addEventListener("click", async function 
         const data = await response.json();
 
         if (data.success) {
-            document.getElementById("description").value = data.complaint;
+
+        document.getElementById("title").value = data.title;
+
+        document.getElementById("description").value = data.description;
+
+        document.getElementById("priority").value = data.priority;
+
+        document.querySelector('select[name="department"]').value = data.department;
+
         } else {
-            alert(data.message);
-        }
+
+        alert(data.message);
+
+    }
 
     } catch (err) {
         alert("Something went wrong while connecting to AI.");

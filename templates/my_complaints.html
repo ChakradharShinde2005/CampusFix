@@ -49,6 +49,7 @@
                         <th>Status</th>
                         <th>Admin Reply</th>
                         <th>Details</th>
+                        <th>Download</th>
                     </tr>
                 </thead>
 
@@ -116,6 +117,12 @@
                                 View
                             </button>
                         </td>
+                        <td>
+                            <a href="/download_receipt/{{ complaint[0] }}"
+                            class="btn btn-success btn-sm">
+                                Download
+                            </a>
+                        </td>
                     </tr>
 
                     <div class="modal fade" id="detailsModal{{ complaint[0] }}" tabindex="-1">
@@ -133,6 +140,51 @@
                                     <p><b>Priority:</b> {{ complaint[12] }}</p>
                                     <p><b>Description:</b> {{ complaint[5] }}</p>
                                     <p><b>Status:</b> {{ complaint[7] }}</p>
+                                    <hr>
+
+                                    <h6 class="fw-bold">Complaint Progress</h6>
+
+                                    {% if complaint[7] == "Pending" %}
+
+                                    <div class="alert alert-warning">
+                                        🟡 Complaint Submitted → Pending
+                                    </div>
+
+                                    {% elif complaint[7] == "In Progress" %}
+
+                                    <div class="alert alert-info">
+                                        🟡 Submitted
+                                        <br>
+                                        ⬇
+                                        <br>
+                                        🔵 In Progress
+                                    </div>
+
+                                    {% elif complaint[7] == "Resolved" %}
+
+                                    <div class="alert alert-success">
+                                        🟡 Submitted
+                                        <br>
+                                        ⬇
+                                        <br>
+                                        🔵 In Progress
+                                        <br>
+                                        ⬇
+                                        <br>
+                                        🟢 Resolved
+                                    </div>
+
+                                    {% elif complaint[7] == "Rejected" %}
+
+                                    <div class="alert alert-danger">
+                                        🟡 Submitted
+                                        <br>
+                                        ⬇
+                                        <br>
+                                        ❌ Rejected
+                                    </div>
+
+                                    {% endif %}
                                     <p><b>Admin Reply:</b> {{ complaint[10] if complaint[10] else "No reply yet" }}</p>
                                     <p><b>Last Updated:</b> {{ complaint[11] if complaint[11] else "Not updated yet" }}</p>
                                     <p><b>Date & Time:</b> {{ complaint[8] }} {{ complaint[9] }}</p>
@@ -166,7 +218,7 @@
 
                 {% else %}
                     <tr>
-                        <td colspan="9" class="text-muted py-4">No complaints found.</td>
+                        <td colspan="10" class="text-muted py-4">No complaints found.</td>
                     </tr>
                 {% endfor %}
                 </tbody>

@@ -56,20 +56,22 @@ def init_db():
     """)
 
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS complaints (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            student_name TEXT NOT NULL,
-            email TEXT NOT NULL,
-            title TEXT NOT NULL,
-            department TEXT NOT NULL,
-            description TEXT NOT NULL,
-            image TEXT,
-            status TEXT DEFAULT 'Pending',
-            admin_reply TEXT DEFAULT '',
-            last_updated TEXT,
-            date TEXT,
-            time TEXT
-        )
+    CREATE TABLE IF NOT EXISTS complaints (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        student_name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        title TEXT NOT NULL,
+        department TEXT NOT NULL,
+        description TEXT NOT NULL,
+        image TEXT,
+        status TEXT DEFAULT 'Pending',
+        admin_reply TEXT DEFAULT '',
+        last_updated TEXT,
+        date TEXT,
+        time TEXT,
+        priority TEXT DEFAULT 'Medium',
+        timeline TEXT DEFAULT 'Submitted'
+    )
     """)
 
     try:
@@ -591,9 +593,20 @@ def update_status(complaint_id):
 
     cursor.execute("""
         UPDATE complaints
-        SET status=?, admin_reply=?, last_updated=?
+        SET
+            status=?,
+            admin_reply=?,
+            last_updated=?,
+            timeline=?
         WHERE id=?
-    """, (new_status, admin_reply, last_updated, complaint_id))
+    """, (
+        
+        new_status,
+        admin_reply,
+        last_updated,
+        new_status,
+        complaint_id
+    ))
 
     conn.commit()
     conn.close()
@@ -675,6 +688,135 @@ def export_csv():
     response = make_response(data)
     response.headers["Content-Type"] = "text/csv"
     response.headers["Content-Disposition"] = "attachment; filename=CampusFix_Report.csv"
+
+    return response
+@app.route("/download_receipt/<int:complaint_id>")
+def download_receipt(complaint_id):
+
+    if "email" not in session:
+        return redirect("/login")
+
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT *
+        FROM complaints
+        WHERE id=? AND email=?
+    """, (complaint_id, session["email"]))
+
+    complaint = cursor.fetchone()
+    print("complaint Data =", complaint)
+    conn.close()
+
+    if not complaint:
+        return "Complaint not found."
+
+    buffer = BytesIO()
+
+    pdf = canvas.Canvas(buffer, pagesize=A4)
+
+    width, height = A4
+
+    y = height - 60
+
+    pdf.setFont("Helvetica-Bold", 22)
+    pdf.drawString(160, y, "CampusFix")
+
+    y -= 30
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(170, y, "Complaint Receipt")
+
+    y -= 45
+
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(50, y, "Complaint ID:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(170, y, f"CF-2026-{complaint[0]:04d}")
+
+    y -= 25
+
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(50, y, "Student Name:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(170, y, str(complaint[1] or ""))
+
+    y -= 25
+
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(50, y, "Email:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(170, y, str(complaint[2] or ""))
+
+    y -= 25
+
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(50, y, "Title:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(170, y, str(complaint[3] or ""))
+
+    y -= 25
+
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(50, y, "Department:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(170, y, str(complaint[4] or ""))
+
+    y -= 25
+
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(50, y, "Priority:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(170, y, str(complaint[12] or "Medium"))
+
+    y -= 25
+
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(50, y, "Status:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(170, y, str(complaint[7] or "pending"))
+
+    y -= 25
+
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(50, y, "Date:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(170, y, str(complaint[10] or "Not Available"))
+
+    y -= 25
+
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(50, y, "Time:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(170, y, str(complaint[11] or "Not Available"))
+
+    y -= 40
+
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(50, y, "Description:")
+
+    y -= 20
+
+    text = pdf.beginText(50, y)
+    text.setFont("Helvetica", 11)
+
+    for line in str(complaint[5] or "").split("\n"):
+        text.textLine(line)
+
+    pdf.drawText(text)
+
+    pdf.save()
+
+    buffer.seek(0)
+
+    response = make_response(buffer.getvalue())
+
+    response.headers["Content-Type"] = "application/pdf"
+
+    response.headers["Content-Disposition"] = (
+        f"attachment; filename=Complaint_{complaint[0]}.pdf"
+    )
 
     return response
 @app.route("/delete_complaint/<int:complaint_id>")

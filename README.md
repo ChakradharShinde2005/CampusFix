@@ -2,35 +2,40 @@
 
 ## 📌 Project Overview
 
-CampusFix is an AI-powered College Complaint Management System developed using Flask and Google Gemini AI. It allows students to register complaints, track their status, and receive updates, while administrators can manage complaints efficiently through a dedicated dashboard.
+CampusFix is an AI-powered College Complaint Management System developed using Flask and Google Gemini AI. It helps students register complaints, track their complaint status, and receive updates. Administrators can efficiently manage complaints through a dedicated dashboard.
 
 This project was developed as a Final Year BCS Project at **MGM's College of Computer Science and Information Technology, Nanded**.
 
 ---
 
-## 🚀 Features
+## ✨ Features
 
-### Student Module
+### 👨‍🎓 Student Module
 - Student Registration & Login
-- Dashboard
+- Student Dashboard
 - Add Complaint
 - Upload Complaint Image
-- AI Complaint Generator (Google Gemini AI)
-- Automatic Title Generation
-- Automatic Description Generation
-- Automatic Department Selection
-- Automatic Priority Selection
-- View My Complaints
+- AI Complaint Generator
+- Auto Title Generation
+- Auto Description Generation
+- Auto Department Detection
+- Auto Priority Selection
+- My Complaints
+- Complaint Status Tracking
 - Notifications
 
-### Admin Module
-- Admin Login
-- Dashboard Analytics
-- Search & Filters
+### 👨‍💼 Admin Module
+- Admin Dashboard
+- Complaint Management
+- Search Complaints
+- Filter by Status
+- Filter by Department
+- Filter by Priority
 - Update Complaint Status
 - Admin Reply
-- PDF Export
-- CSV Export
+- PDF Report Export
+- CSV Report Export
+- Dashboard Analytics
 
 ---
 
@@ -54,7 +59,7 @@ Google Gemini AI automatically generates:
 - CSS3
 - Bootstrap 5
 - JavaScript
-- Google Gemini AI API
+- Google Gemini API
 - Git & GitHub
 
 ---
@@ -66,14 +71,12 @@ CampusFix/
 │
 ├── app.py
 ├── requirements.txt
-├── .env
-├── database.db
-│
+├── Procfile
+├── runtime.txt
 ├── templates/
 ├── static/
-├── uploads/
-│
-└── README.md
+├── README.md
+└── .gitignore
 ```
 
 ---
@@ -102,6 +105,6 @@ MGM's College of Computer Science and Information Technology, Nanded
 
 ---
 
-## 📄 License
+## 📜 License
 
-This project is developed for educational purposes.
+This project is developed for educational purposes only.

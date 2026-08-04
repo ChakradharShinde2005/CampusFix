@@ -13,8 +13,69 @@
 <body style="background:#f4f7fb;">
 
 <nav class="navbar navbar-dark bg-primary px-4">
-    <a class="navbar-brand fw-bold" href="/admin_dashboard">CampusFix Admin</a>
-    <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+
+    <a class="navbar-brand fw-bold" href="/admin_dashboard">
+        CampusFix Admin
+    </a>
+
+    <div class="d-flex align-items-center">
+
+        <!-- Notification Bell -->
+        <div class="dropdown me-3">
+
+            <button class="btn btn-light dropdown-toggle position-relative"
+                    data-bs-toggle="dropdown">
+
+                🔔
+
+                {% if notification_count > 0 %}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    {{ notification_count }}
+                </span>
+                {% endif %}
+
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end shadow" style="width:350px;">
+
+                <li class="dropdown-header fw-bold">
+                    Recent Notifications
+                </li>
+
+                {% if notifications %}
+                    {% for note in notifications %}
+
+                    <li>
+                        <div class="dropdown-item">
+                            <strong>{{ note[1] }}</strong><br>
+                            <small class="text-muted">{{ note[3] }}</small>
+                        </div>
+                    </li>
+
+                    {% if not loop.last %}
+                    <li><hr class="dropdown-divider"></li>
+                    {% endif %}
+
+                    {% endfor %}
+                {% else %}
+                    <li>
+                        <div class="dropdown-item text-muted">
+                            No new notifications
+                        </div>
+                    </li>
+                {% endif %}
+
+            </ul>
+
+        </div>
+
+        <!-- Logout Button -->
+        <a href="/logout" class="btn btn-danger btn-sm">
+            Logout
+        </a>
+
+    </div>
+
 </nav>
 
 <div class="container-fluid mt-4 px-4">
@@ -37,40 +98,47 @@
     
 
     <div class="row g-4 mb-4">
-        <div class="col-md">
-            <div class="card shadow border-0 rounded-4 text-center p-4">
-                <h5>Total Complaints</h5>
-                <h2>{{ total_complaints }}</h2>
+
+        <div class="col-lg col-md-6">
+            <div class="card border-0 shadow-lg rounded-4 text-center p-4 bg-primary text-white">
+                <h6>Total Complaints</h6>
+                <h2 class="fw-bold">{{ total_complaints }}</h2>
+                <small>All complaints</small>
             </div>
         </div>
 
-        <div class="col-md">
-            <div class="card shadow border-0 rounded-4 text-center p-4">
-                <h5>Pending</h5>
-                <h2 class="text-warning">{{ pending_complaints }}</h2>
+        <div class="col-lg col-md-6">
+            <div class="card border-0 shadow-lg rounded-4 text-center p-4 bg-warning text-dark">
+                <h6>Pending</h6>
+                <h2 class="fw-bold">{{ pending_complaints }}</h2>
+                <small>Waiting for action</small>
             </div>
         </div>
 
-        <div class="col-md">
-            <div class="card shadow border-0 rounded-4 text-center p-4">
-                <h5>In Progress</h5>
-                <h2 class="text-info">{{ progress_complaints }}</h2>
+        <div class="col-lg col-md-6">
+            <div class="card border-0 shadow-lg rounded-4 text-center p-4 bg-info text-white">
+                <h6>In Progress</h6>
+                <h2 class="fw-bold">{{ progress_complaints }}</h2>
+                <small>Currently processing</small>
             </div>
         </div>
 
-        <div class="col-md">
-            <div class="card shadow border-0 rounded-4 text-center p-4">
-                <h5>Resolved</h5>
-                <h2 class="text-success">{{ resolved_complaints }}</h2>
+        <div class="col-lg col-md-6">
+            <div class="card border-0 shadow-lg rounded-4 text-center p-4 bg-success text-white">
+                <h6>Resolved</h6>
+                <h2 class="fw-bold">{{ resolved_complaints }}</h2>
+                <small>Successfully solved</small>
             </div>
         </div>
 
-        <div class="col-md">
-            <div class="card shadow border-0 rounded-4 text-center p-4">
-                <h5>Rejected</h5>
-                <h2 class="text-danger">{{ rejected_complaints }}</h2>
+        <div class="col-lg col-md-6">
+            <div class="card border-0 shadow-lg rounded-4 text-center p-4 bg-danger text-white">
+                <h6>Rejected</h6>
+                <h2 class="fw-bold">{{ rejected_complaints }}</h2>
+                <small>Closed without action</small>
             </div>
         </div>
+
     </div>
 
     <div class="row g-4 mb-4">

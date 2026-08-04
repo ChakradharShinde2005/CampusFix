@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from io import BytesIO
+from flask_mail import Mail, Message
 import csv
 from google import genai
 
@@ -27,6 +28,14 @@ def get_ai_response(prompt):
     
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "campusfix_secret_key")
+
+app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER")
+app.config["MAIL_PORT"] = int(os.getenv("MAIL_PORT"))
+app.config["MAIL_USE_TLS"] = os.getenv("MAIL_USE_TLS") == "True"
+app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
+app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
+
+mail = Mail(app)
 
 UPLOAD_FOLDER = "static/uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -73,6 +82,15 @@ def init_db():
         timeline TEXT DEFAULT 'Submitted'
     )
     """)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS notifications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        message TEXT,
+        is_read INTEGER DEFAULT 0,
+        created_at TEXT
+    )
+  """)
+
 
     try:
         cursor.execute("ALTER TABLE complaints ADD COLUMN admin_reply TEXT DEFAULT ''")
@@ -329,7 +347,13 @@ def add_complaint():
             current_time,
             priority
         ))
-
+        cursor.execute("""
+        INSERT INTO notifications(message, created_at)
+        VALUES (?, ?)
+        """, (
+            f"New Complaint Submitted: {title}",
+            datetime.now().strftime("%d-%m-%Y %I:%M %p")
+        ))
         conn.commit()
         conn.close()
 
@@ -498,6 +522,23 @@ def admin_dashboard():
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
+    cursor.execute("""
+    SELECT COUNT(*)
+    FROM notifications
+    WHERE is_read = 0
+    """)
+
+    notification_count = cursor.fetchone()[0]
+
+    cursor.execute("""
+    SELECT *
+    FROM notifications
+    ORDER BY id DESC
+    LIMIT 5
+    """)
+
+    notifications = cursor.fetchall()
+
     query = "SELECT * FROM complaints WHERE 1=1"
     params = []
 
@@ -572,7 +613,9 @@ def admin_dashboard():
         department_filter=department_filter,
         priority_filter=priority_filter,
         department_labels=department_labels,
-        department_counts=department_counts
+        department_counts=department_counts,
+        notification_count=notification_count,
+        notifications=notifications
     )
 
 
@@ -607,6 +650,69 @@ def update_status(complaint_id):
         new_status,
         complaint_id
     ))
+
+    cursor.execute("""
+        SELECT student_name, email, title
+        FROM complaints
+        WHERE id=?
+    """, (complaint_id,))
+
+    student = cursor.fetchone()
+
+    if student:
+        msg = Message(
+            subject=f"MGMS CampusFix | Complaint #{complaint_id} Status Updated",
+            sender=("CampusFix - MGMS College", app.config["MAIL_USERNAME"]),
+            recipients=[student[1]]
+        )
+
+        msg.html = f"""
+        <div style="background:#0d6efd;padding:20px;text-align:center;color:white;border-radius:8px;">
+            <h2>CampusFix</h2>
+            <p>MGMS College of Computer Science & Information Technology, Nanded</p>
+        </div>
+
+        <br>
+        <h2>Hello {student[0]},</h2>
+
+        <p>Your complaint status has been updated.</p>
+
+        <table border="1" cellpadding="8" cellspacing="0">
+            <tr>
+                <td><b>Complaint</b></td>
+                <td>{student[2]}</td>
+            </tr>
+
+            <tr>
+                <td><b>New Status</b></td>
+                <td>{new_status}</td>
+            </tr>
+
+            <tr>
+                <td><b>Admin Reply</b></td>
+                <td>{admin_reply if admin_reply else "No reply provided."}</td>
+            </tr>
+
+            <tr>
+                <td><b>Updated On</b></td>
+                <td>{last_updated}</td>
+            </tr>
+        </table>
+
+        <br>
+
+        <p>Thank you for using <b>CampusFix</b>.</p>
+
+        <hr>
+
+        <small>This is an automated email from CampusFix.</small>
+        """
+
+        try:
+            mail.send(msg)
+            print("✅ Email sent successfully.")
+        except Exception as e:
+            print("❌ Email sending failed:", e)
 
     conn.commit()
     conn.close()

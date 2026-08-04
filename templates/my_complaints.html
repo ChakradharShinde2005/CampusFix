@@ -142,6 +142,43 @@
                                     <p><b>Status:</b> {{ complaint[7] }}</p>
                                     <hr>
 
+                                    <h6 class="mb-3">Complaint Progress</h6>
+
+                                    <div class="progress" style="height:25px;">
+
+                                    {% if complaint[7] == "Pending" %}
+
+                                    <div class="progress-bar bg-warning"
+                                        style="width:33%;">
+                                        Submitted
+                                    </div>
+
+                                    {% elif complaint[7] == "In Progress" %}
+
+                                    <div class="progress-bar bg-info"
+                                        style="width:66%;">
+                                        In Progress
+                                    </div>
+
+                                    {% elif complaint[7] == "Resolved" %}
+
+                                    <div class="progress-bar bg-success"
+                                        style="width:100%;">
+                                        Resolved ✔
+                                    </div>
+
+                                    {% elif complaint[7] == "Rejected" %}
+
+                                    <div class="progress-bar bg-danger"
+                                        style="width:100%;">
+                                        Rejected
+                                    </div>
+
+                                    {% endif %}
+
+                                    </div>
+                                    <hr>
+
                                     <h6 class="fw-bold">Complaint Progress</h6>
 
                                     {% if complaint[7] == "Pending" %}

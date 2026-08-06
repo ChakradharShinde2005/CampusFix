@@ -26,12 +26,45 @@
 
         <div class="col-md-5">
             <div class="card shadow border-0 rounded-4 p-4">
+
+                <div class="text-center mb-3">
+
+                {% if profile[3] %}
+
+                <img
+                    src="{{ url_for('static', filename='profile_photos/' + profile[3]) }}"
+                    class="rounded-circle border shadow"
+                    width="150"
+                    height="150"
+                    style="object-fit:cover;">
+
+                {% else %}
+
+                <img
+                    src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                    class="rounded-circle border shadow"
+                    width="150"
+                    height="150">
+
+                {% endif %}
+
+                </div>
                 <h4>Account Information</h4>
                 <hr>
 
                 <p><b>Name:</b> {{ name }}</p>
                 <p><b>Email:</b> {{ email }}</p>
                 <p><b>Role:</b> {{ role }}</p>
+
+                <p><b>Mobile:</b> {{ profile[0] if profile[0] else "Not Added" }}</p>
+
+                <p><b>Department:</b> {{ profile[1] if profile[1] else "Not Added" }}</p>
+
+                <p><b>Student ID:</b> {{ profile[2] if profile[2] else "Not Added" }}</p>
+
+                <a href="/edit_profile" class="btn btn-warning w-100 mt-3">
+                    Edit Profile
+                </a>
 
                 <a href="/change_password" class="btn btn-primary w-100 mt-3">
                     Change Password

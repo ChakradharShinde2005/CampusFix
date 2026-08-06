@@ -44,6 +44,9 @@ mail = Mail(app)
 UPLOAD_FOLDER = "static/uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
+PROFILE_UPLOAD_FOLDER = "static/profile_photos"
+app.config["PROFILE_UPLOAD_FOLDER"] = PROFILE_UPLOAD_FOLDER
+
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
 
 
@@ -52,6 +55,9 @@ def allowed_file(filename):
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
+
+if not os.path.exists(PROFILE_UPLOAD_FOLDER):
+    os.makedirs(PROFILE_UPLOAD_FOLDER)
 
 
 def init_db():
@@ -1051,6 +1057,14 @@ def profile():
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
+    cursor.execute("""
+    SELECT mobile, department, student_id, profile_photo
+    FROM users
+    WHERE email=?
+    """, (session["email"],))
+
+    profile = cursor.fetchone()
+
     cursor.execute("SELECT COUNT(*) FROM complaints WHERE email=?", (session["email"],))
     total_complaints = cursor.fetchone()[0]
 
@@ -1069,10 +1083,100 @@ def profile():
         role=session["role"],
         total_complaints=total_complaints,
         pending_complaints=pending_complaints,
-        resolved_complaints=resolved_complaints
+        resolved_complaints=resolved_complaints,
+        profile=profile
     )
 
+@app.route("/edit_profile", methods=["GET", "POST"])
+def edit_profile():
 
+    if "email" not in session:
+        return redirect("/login")
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    if request.method == "POST":
+
+        name = request.form["name"]
+        mobile = request.form["mobile"]
+        department = request.form["department"]
+        student_id = request.form["student_id"]
+
+        photo = request.files.get("profile_photo")
+
+        filename = None
+
+        if photo and photo.filename != "" and allowed_file(photo.filename):
+
+            filename = secure_filename(photo.filename)
+
+            photo.save(
+                os.path.join(
+                    app.config["PROFILE_UPLOAD_FOLDER"],
+                    filename
+                )
+            )
+
+        if filename:
+
+            cursor.execute("""
+                UPDATE users
+                SET name=?,
+                    mobile=?,
+                    department=?,
+                    student_id=?,
+                    profile_photo=?
+                WHERE email=?
+            """,
+            (
+                name,
+                mobile,
+                department,
+                student_id,
+                filename,
+                session["email"]
+            ))
+
+        else:
+
+            cursor.execute("""
+                UPDATE users
+                SET name=?,
+                    mobile=?,
+                    department=?,
+                    student_id=?
+                WHERE email=?
+            """,
+            (
+                name,
+                mobile,
+                department,
+                student_id,
+                session["email"]
+            ))
+
+        conn.commit()
+
+        session["name"] = name
+
+        conn.close()
+
+        flash("Profile updated successfully!", "success")
+
+        return redirect("/profile")
+
+    cursor.execute("""
+        SELECT name,email,mobile,department,student_id
+        FROM users
+        WHERE email=?
+    """, (session["email"],))
+
+    user = cursor.fetchone()
+
+    conn.close()
+
+    return render_template("edit_profile.html", user=user)
 @app.route("/change_password", methods=["GET", "POST"])
 def change_password():
     if "email" not in session:

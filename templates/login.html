@@ -23,13 +23,13 @@
 
             {% if messages %}
 
-                {% for category, message in messages %}
+                {% if messages %}
 
-                    <div class="alert alert-{{ category }}">
-                        {{ message }}
-                    </div>
+                <div class="alert alert-{{ messages[-1][0] }}">
+                    {{ messages[-1][1] }}
+                </div>
 
-                {% endfor %}
+                {% endif %}
 
             {% endif %}
 

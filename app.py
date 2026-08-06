@@ -11,6 +11,8 @@ from io import BytesIO
 from flask_mail import Mail, Message
 import csv
 from google import genai
+import random
+from flask import session
 
 
 load_dotenv()
@@ -27,6 +29,8 @@ def get_ai_response(prompt):
         return f"AI Error: {e}"
     
 app = Flask(__name__)
+# Forgot Password OTP Store
+otp_storage = {}
 app.secret_key = os.getenv("SECRET_KEY", "campusfix_secret_key")
 
 app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER")
@@ -200,6 +204,101 @@ def login():
         return redirect("/login")
 
     return render_template("login.html")
+@app.route("/forgot_password", methods=["GET", "POST"])
+def forgot_password():
+
+    if request.method == "POST":
+
+        email = request.form["email"]
+
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "SELECT * FROM users WHERE email=?",
+            (email,)
+        )
+
+        user = cursor.fetchone()
+
+        conn.close()
+
+        if not user:
+            flash("Email not found!", "danger")
+            return redirect("/forgot_password")
+
+        otp = str(random.randint(100000, 999999))
+
+        otp_storage[email] = otp
+
+        msg = Message(
+            "CampusFix Password Reset OTP",
+            sender=app.config["MAIL_USERNAME"],
+            recipients=[email]
+        )
+
+        msg.body = f"""
+        Hello,
+
+        Your CampusFix Password Reset OTP is:
+
+        {otp}
+
+        This OTP is valid for one password reset request.
+
+        If you did not request a password reset, please ignore this email.
+
+        Thank You,
+        CampusFix Team
+        """
+
+        mail.send(msg)
+        session["reset_email"] = email
+
+        flash("OTP sent successfully.", "success")
+
+        return redirect("/verify_otp")
+
+    return render_template("forgot_password.html")
+@app.route("/verify_otp", methods=["GET", "POST"])
+def verify_otp():
+
+    if "reset_email" not in session:
+        return redirect("/forgot_password")
+
+    email = session["reset_email"]
+
+    if request.method == "POST":
+
+        entered_otp = request.form["otp"]
+        new_password = request.form["password"]
+
+        if otp_storage.get(email) != entered_otp:
+            flash("Invalid OTP!", "danger")
+            return redirect("/verify_otp")
+
+        # Database connection
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+
+        # Update password
+        cursor.execute(
+            "UPDATE users SET password=? WHERE email=?",
+            (new_password, email)
+        )
+
+        conn.commit()
+        conn.close()
+
+        # Clear OTP and session
+        otp_storage.pop(email, None)
+        session.pop("reset_email", None)
+
+        flash("Password changed successfully! Please login.", "success")
+
+        return redirect("/login")
+
+    return render_template("verify_otp.html")
 @app.route("/test_student")
 def test_student():
     session["name"] = "Chakradhar"

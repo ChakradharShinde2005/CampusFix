@@ -221,6 +221,22 @@
 
     <canvas id="departmentChart" height="100"></canvas>
 
+    <div class="card shadow border-0 rounded-4 p-4 mt-4">
+
+        <h5 class="mb-3">Monthly Complaint Trend</h5>
+
+        <canvas id="monthlyChart" height="100"></canvas>
+
+        <div class="card shadow border-0 rounded-4 p-4 mt-4">
+
+            <h5 class="mb-3">Complaint Status Distribution</h5>
+
+            <canvas id="statusChart" height="100"></canvas>
+
+        </div>
+
+    </div>
+
 </div>
 
     <div class="card shadow border-0 rounded-4 p-4 mb-4">
@@ -385,6 +401,13 @@
                                           rows="2"
                                           placeholder="Write admin reply here...">{{ complaint[10] }}</textarea>
 
+                                          <button
+                                              type="button"
+                                              class="btn btn-success mt-2"
+                                              onclick="generateAIReply()">
+                                              ✨ Generate AI Reply
+                                          </button>
+
                                 <button type="submit" class="btn btn-success btn-sm w-100">Update</button>
                             </form>
                         </td>
@@ -412,7 +435,12 @@
                                     <p><b>Email:</b> {{ complaint[2] }}</p>
                                     <p><b>Title:</b> {{ complaint[3] }}</p>
                                     <p><b>Department:</b> {{ complaint[4] }}</p>
-                                    <p><b>Description:</b> {{ complaint[5] }}</p>
+                                    <p>
+                                        <b>Description:</b>
+                                        <span class="complaint-description">
+                                            {{ complaint[5] }}
+                                        </span>
+                                    </p>
                                     <p><b>Status:</b> {{ complaint[7] }}</p>
                                     <p><b>Date & Time:</b> {{ complaint[8] }} {{ complaint[9] }}</p>
 
@@ -503,6 +531,117 @@ new Chart(ctx, {
         }
     }
 });
+const monthlyCtx = document.getElementById("monthlyChart");
+
+new Chart(monthlyCtx, {
+    type: "line",
+
+    data: {
+        labels: JSON.parse('{{ month_labels|tojson|safe }}'),
+
+        datasets: [{
+            label: "Complaints",
+
+            data: JSON.parse('{{ month_counts|tojson|safe }}'),
+
+            borderColor: "#0d6efd",
+            backgroundColor: "rgba(13,110,253,0.15)",
+
+            fill: true,
+            tension: 0.4
+        }]
+    },
+
+    options: {
+        responsive: true,
+
+        plugins: {
+            legend: {
+                display: true
+            }
+        },
+
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+const statusCtx = document.getElementById("statusChart");
+
+new Chart(statusCtx, {
+
+    type: "pie",
+
+    data: {
+
+        labels: [
+            "Pending",
+            "In Progress",
+            "Resolved",
+            "Rejected"
+        ],
+
+        datasets: [{
+
+            data: JSON.parse('{{ [pending_complaints, progress_complaints, resolved_complaints, rejected_complaints] | tojson | safe }}'),
+
+            backgroundColor: [
+                "#ffc107",
+                "#0dcaf0",
+                "#198754",
+                "#dc3545"
+            ]
+
+        }]
+
+    },
+
+    options: {
+
+        responsive: true,
+
+        plugins: {
+
+            legend: {
+
+                position: "bottom"
+
+            }
+
+        }
+
+    }
+
+});
+</script>
+<script>
+async function generateAIReply() {
+
+    const description = document.querySelector(".complaint-description");
+
+    if (!description) {
+        alert("Complaint description not found.");
+        return;
+    }
+
+    const response = await fetch("/generate_ai_reply", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            complaint: description.innerText
+        })
+    });
+
+    const data = await response.json();
+
+    document.querySelector(
+        "textarea[name='admin_reply']"
+    ).value = data.reply;
+}
 </script>
 </body>
 </html>

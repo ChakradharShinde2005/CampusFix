@@ -698,6 +698,63 @@ def admin_dashboard():
         FROM complaints
         GROUP BY department
     """)
+
+    cursor.execute("""
+    SELECT
+        substr(date, 4, 2) AS month,
+        COUNT(*)
+    FROM complaints
+    GROUP BY month
+    ORDER BY month
+    """)
+
+    monthly_data = cursor.fetchall()
+
+    month_labels = []
+    month_counts = []
+
+    months = {
+        "01": "Jan",
+        "02": "Feb",
+        "03": "Mar",
+        "04": "Apr",
+        "05": "May",
+        "06": "Jun",
+        "07": "Jul",
+        "08": "Aug",
+        "09": "Sep",
+        "10": "Oct",
+        "11": "Nov",
+        "12": "Dec"
+    }
+
+    for row in monthly_data:
+        month_labels.append(months.get(row[0], row[0]))
+        month_counts.append(row[1])
+
+    monthly_data = cursor.fetchall()
+
+    month_labels = []
+    month_counts = []
+
+    months = {
+        "01":"Jan",
+        "02":"Feb",
+        "03":"Mar",
+        "04":"Apr",
+        "05":"May",
+        "06":"Jun",
+        "07":"Jul",
+        "08":"Aug",
+        "09":"Sep",
+        "10":"Oct",
+        "11":"Nov",
+        "12":"Dec"
+    }
+
+    for row in monthly_data:
+        month_labels.append(months.get(row[0], row[0]))
+        month_counts.append(row[1])
     department_data = cursor.fetchall()
 
     department_labels = [row[0] for row in department_data]
@@ -719,6 +776,8 @@ def admin_dashboard():
         priority_filter=priority_filter,
         department_labels=department_labels,
         department_counts=department_counts,
+        month_labels=month_labels,
+        month_counts=month_counts,
         notification_count=notification_count,
         notifications=notifications
     )
@@ -736,9 +795,17 @@ def update_status(complaint_id):
     admin_reply = request.form.get("admin_reply", "")
     last_updated = datetime.now().strftime("%d-%m-%Y %I:%M %p")
 
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect("database.db", timeout=30)
     cursor = conn.cursor()
 
+    cursor.execute(
+        "SELECT timeline FROM complaints WHERE id=?",
+        (complaint_id,)
+    )
+
+    old_timeline = cursor.fetchone()[0]
+
+    new_timeline = old_timeline + " → " + new_status
     cursor.execute("""
         UPDATE complaints
         SET
@@ -752,7 +819,7 @@ def update_status(complaint_id):
         new_status,
         admin_reply,
         last_updated,
-        new_status,
+        new_timeline,
         complaint_id
     ))
 
@@ -770,7 +837,12 @@ def update_status(complaint_id):
             sender=("CampusFix - MGMS College", app.config["MAIL_USERNAME"]),
             recipients=[student[1]]
         )
-
+        status_color = {
+            "Pending": "#ffc107",
+            "In Progress": "#0dcaf0",
+            "Resolved": "#198754",
+            "Rejected": "#dc3545"
+        }.get(new_status, "#6c757d")
         msg.html = f"""
         <div style="background:#0d6efd;padding:20px;text-align:center;color:white;border-radius:8px;">
             <h2>CampusFix</h2>
@@ -790,7 +862,16 @@ def update_status(complaint_id):
 
             <tr>
                 <td><b>New Status</b></td>
-                <td>{new_status}</td>
+                <td>
+                    <span style="
+                        background:{status_color};
+                        color:white;
+                        padding:6px 12px;
+                        border-radius:20px;
+                        font-weight:bold;">
+                        {new_status}
+                    </span>
+                </td>
             </tr>
 
             <tr>
@@ -823,6 +904,28 @@ def update_status(complaint_id):
     conn.close()
 
     return redirect("/admin_dashboard")
+@app.route("/generate_ai_reply", methods=["POST"])
+def generate_ai_reply():
+
+    data = request.get_json()
+    complaint = data["complaint"]
+
+    prompt = f"""
+You are the CampusFix Admin.
+
+Write a short, professional and polite reply for this student complaint.
+
+Complaint:
+{complaint}
+
+Reply only.
+"""
+
+    reply = get_ai_response(prompt)
+
+    return {
+        "reply": reply
+    }
 @app.route("/export_pdf")
 def export_pdf():
     if "email" not in session:

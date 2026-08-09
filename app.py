@@ -693,19 +693,37 @@ def admin_dashboard():
     cursor.execute("SELECT COUNT(*) FROM complaints WHERE status='Rejected'")
     rejected_complaints = cursor.fetchone()[0]
 
+        # ==============================
+    # DEPARTMENT WISE ANALYTICS
+    # ==============================
+
     cursor.execute("""
         SELECT department, COUNT(*)
         FROM complaints
         GROUP BY department
     """)
 
+    department_data = cursor.fetchall()
+
+    department_labels = []
+    department_counts = []
+
+    for row in department_data:
+        department_labels.append(row[0])
+        department_counts.append(row[1])
+
+
+    # ==============================
+    # MONTHLY COMPLAINT ANALYTICS
+    # ==============================
+
     cursor.execute("""
-    SELECT
-        substr(date, 4, 2) AS month,
-        COUNT(*)
-    FROM complaints
-    GROUP BY month
-    ORDER BY month
+        SELECT
+            substr(date, 4, 2) AS month,
+            COUNT(*)
+        FROM complaints
+        GROUP BY month
+        ORDER BY month
     """)
 
     monthly_data = cursor.fetchall()
@@ -732,33 +750,6 @@ def admin_dashboard():
         month_labels.append(months.get(row[0], row[0]))
         month_counts.append(row[1])
 
-    monthly_data = cursor.fetchall()
-
-    month_labels = []
-    month_counts = []
-
-    months = {
-        "01":"Jan",
-        "02":"Feb",
-        "03":"Mar",
-        "04":"Apr",
-        "05":"May",
-        "06":"Jun",
-        "07":"Jul",
-        "08":"Aug",
-        "09":"Sep",
-        "10":"Oct",
-        "11":"Nov",
-        "12":"Dec"
-    }
-
-    for row in monthly_data:
-        month_labels.append(months.get(row[0], row[0]))
-        month_counts.append(row[1])
-    department_data = cursor.fetchall()
-
-    department_labels = [row[0] for row in department_data]
-    department_counts = [row[1] for row in department_data]
 
     conn.close()
 

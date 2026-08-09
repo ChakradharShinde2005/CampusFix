@@ -403,8 +403,8 @@
 
                                           <button
                                               type="button"
-                                              class="btn btn-success mt-2"
-                                              onclick="generateAIReply()">
+                                              class="btn btn-success mt-2 ai-reply-btn"
+                                              data-complaint-id="{{ complaint[0] }}">
                                               ✨ Generate AI Reply
                                           </button>
 
@@ -429,33 +429,67 @@
                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                 </div>
 
-                                <div class="modal-body">
-                                    <p><b>Complaint ID:</b> CF-2026-{{ "%04d"|format(complaint[0]) }}</p>
-                                    <p><b>Student:</b> {{ complaint[1] }}</p>
-                                    <p><b>Email:</b> {{ complaint[2] }}</p>
-                                    <p><b>Title:</b> {{ complaint[3] }}</p>
-                                    <p><b>Department:</b> {{ complaint[4] }}</p>
-                                    <p>
-                                        <b>Description:</b>
-                                        <span class="complaint-description">
-                                            {{ complaint[5] }}
-                                        </span>
-                                    </p>
-                                    <p><b>Status:</b> {{ complaint[7] }}</p>
-                                    <p><b>Date & Time:</b> {{ complaint[8] }} {{ complaint[9] }}</p>
+                                <<div class="modal-body">
 
-                                    <p><b>Admin Reply:</b> {{ complaint[10] if complaint[10] else "No reply yet" }}</p>
+                                     <p><b>Complaint ID:</b> CF-2026-{{ "%04d"|format(complaint[0]) }}</p>
 
-                                    <p><b>Last Updated:</b> {{ complaint[11] if complaint[11] else "Not updated yet" }}</p>
+                                        <p><b>Student:</b> {{ complaint[1] }}</p>
 
-                                    <p><b>Priority:</b> {{ complaint[12] }}</p>
+                                        <p><b>Email:</b> {{ complaint[2] }}</p>
 
-                                    {% if complaint[6] %}
+                                        <p><b>Title:</b> {{ complaint[3] }}</p>
+
+                                        <p><b>Department:</b> {{ complaint[4] }}</p>
+
+                                        <p>
+                                            <b>Description:</b>
+                                            <span id="description-{{ complaint[0] }}">
+                                                {{ complaint[5] }}
+                                            </span>
+                                        </p>
+
+                                        <p><b>Status:</b> {{ complaint[7] }}</p>
+
+                                        <p><b>Date & Time:</b> {{ complaint[8] }} {{ complaint[9] }}</p>
+
                                         <hr>
-                                        <img src="{{ url_for('static', filename='uploads/' + complaint[6]) }}"
-                                             class="img-fluid rounded-3">
-                                    {% endif %}
-                                </div>
+
+                                        <label class="form-label">
+                                            <b>Admin Reply</b>
+                                        </label>
+
+                                        <textarea
+                                            id="ai-reply-{{ complaint[0] }}"
+                                            class="form-control"
+                                            rows="4"
+                                            placeholder="Write admin reply here..."
+                                        >{{ complaint[10] if complaint[10] else "" }}</textarea>
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-success mt-2 ai-reply-btn"
+                                            data-complaint-id="{{ complaint[0] }}">
+                                            ✨ Generate AI Reply
+                                        </button>
+
+                                        <p class="mt-3">
+                                            <b>Last Updated:</b>
+                                            {{ complaint[11] if complaint[11] else "Not updated yet" }}
+                                        </p>
+
+                                        <p>
+                                            <b>Priority:</b> {{ complaint[12] }}
+                                        </p>
+
+                                        {% if complaint[6] %}
+                                            <hr>
+                                            <img
+                                                src="{{ url_for('static', filename='uploads/' + complaint[6]) }}"
+                                                class="img-fluid rounded-3"
+                                            >
+                                        {% endif %}
+
+                                    </div>
                             </div>
                         </div>
                     </div>
@@ -616,32 +650,77 @@ new Chart(statusCtx, {
 
 });
 </script>
+
 <script>
-async function generateAIReply() {
 
-    const description = document.querySelector(".complaint-description");
+async function generateAIReply(complaintId) {
 
-    if (!description) {
+    const descriptionElement =
+        document.getElementById("description-" + complaintId);
+
+    const replyElement =
+        document.getElementById("ai-reply-" + complaintId);
+
+    if (!descriptionElement) {
         alert("Complaint description not found.");
         return;
     }
 
-    const response = await fetch("/generate_ai_reply", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            complaint: description.innerText
-        })
+    const complaint = descriptionElement.innerText.trim();
+
+    if (!complaint) {
+        alert("Complaint description is empty.");
+        return;
+    }
+
+    replyElement.value = "Generating AI reply...";
+
+    try {
+
+        const response = await fetch("/generate_ai_reply", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                complaint: complaint
+            })
+        });
+
+        const data = await response.json();
+
+        console.log("AI RESPONSE:", data);
+
+        if (data.reply) {
+            replyElement.value = data.reply;
+        }else {
+            replyElement.value = "Unable to generate AI reply.";
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        replyElement.value =
+            "Error while generating AI reply.";
+
+    }
+}
+document.querySelectorAll(".ai-reply-btn").forEach(function(button) {
+
+    button.addEventListener("click", function() {
+
+        const complaintId = this.getAttribute("data-complaint-id");
+
+        generateAIReply(complaintId);
+
     });
 
-    const data = await response.json();
-
-    document.querySelector(
-        "textarea[name='admin_reply']"
-    ).value = data.reply;
-}
+});
 </script>
+
 </body>
 </html>

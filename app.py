@@ -907,21 +907,32 @@ def update_status(complaint_id):
 @app.route("/generate_ai_reply", methods=["POST"])
 def generate_ai_reply():
 
+    print("AI ROUTE STARTED")
+
     data = request.get_json()
-    complaint = data["complaint"]
+    complaint = data.get("complaint", "")
+
+    print("COMPLAINT:", complaint)
 
     prompt = f"""
-You are the CampusFix Admin.
+You are an admin of CampusFix, a college complaint management system.
 
-Write a short, professional and polite reply for this student complaint.
+Write a short, professional, polite and helpful reply to the student.
 
-Complaint:
+Student complaint:
 {complaint}
 
-Reply only.
+Rules:
+- Keep the reply short.
+- Be polite and professional.
+- Do not invent information.
+- Do not mention that you are an AI.
+- Reply directly to the student.
 """
 
     reply = get_ai_response(prompt)
+
+    print("GEMINI RESPONSE:", reply)
 
     return {
         "reply": reply
@@ -934,7 +945,7 @@ def export_pdf():
     if session["role"] != "admin":
         return "Access Denied! Admin only."
 
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect("database.db", timeout=30)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM complaints ORDER BY id DESC")
     complaints = cursor.fetchall()

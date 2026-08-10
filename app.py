@@ -89,17 +89,57 @@ def init_db():
         date TEXT,
         time TEXT,
         priority TEXT DEFAULT 'Medium',
-        timeline TEXT DEFAULT 'Submitted'
-    )
+        timeline TEXT DEFAULT 'Submitted',
+        admin_confirmed INTEGER DEFAULT 0,
+        student_confirmed INTEGER DEFAULT 0
+        )
     """)
+
+    # Add confirmation columns to existing complaints table
+    try:
+        cursor.execute("""
+            ALTER TABLE complaints
+            ADD COLUMN admin_confirmed INTEGER DEFAULT 0
+        """)
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        cursor.execute("""
+            ALTER TABLE complaints
+            ADD COLUMN student_confirmed INTEGER DEFAULT 0
+        """)
+    except sqlite3.OperationalError:
+        pass
+
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS notifications (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         message TEXT,
         is_read INTEGER DEFAULT 0,
         created_at TEXT
-    )
-  """)
+        )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS resolved_complaints (
+        id INTEGER PRIMARY KEY,
+        student_name TEXT,
+        email TEXT,
+        title TEXT,
+        department TEXT,
+        description TEXT,
+        image TEXT,
+        status TEXT,
+        admin_reply TEXT,
+        last_updated TEXT,
+        date TEXT,
+        time TEXT,
+        priority TEXT,
+        timeline TEXT,
+        resolved_at TEXT
+        )
+    """)
 
 
     try:
@@ -611,6 +651,77 @@ def notifications():
         "notifications.html",
         notifications=notifications
     )
+
+@app.route("/export_complaints")
+def export_complaints():
+
+    if "email" not in session:
+        return redirect("/login")
+
+    if session["role"] != "admin":
+        return "Access Denied! Admin only."
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT
+            id,
+            student_name,
+            email,
+            title,
+            department,
+            description,
+            status,
+            admin_reply,
+            date,
+            time,
+            priority,
+            last_updated,
+            timeline
+        FROM complaints
+        ORDER BY id DESC
+    """)
+
+    complaints = cursor.fetchall()
+
+    conn.close()
+
+    output = BytesIO()
+
+    import io
+    text_output = io.StringIO()
+
+    writer = csv.writer(text_output)
+
+    writer.writerow([
+        "Complaint ID",
+        "Student Name",
+        "Email",
+        "Title",
+        "Department",
+        "Description",
+        "Status",
+        "Admin Reply",
+        "Date",
+        "Time",
+        "Priority",
+        "Last Updated",
+        "Timeline"
+    ])
+
+    for complaint in complaints:
+        writer.writerow(complaint)
+
+    response = make_response(text_output.getvalue())
+
+    response.headers["Content-Disposition"] = (
+        "attachment; filename=CampusFix_Complaints_Report.csv"
+    )
+
+    response.headers["Content-Type"] = "text/csv"
+
+    return response
 @app.route("/admin_dashboard")
 def admin_dashboard():
     if "email" not in session:
@@ -746,9 +857,20 @@ def admin_dashboard():
         "12": "Dec"
     }
 
+            # Prepare all 12 months
+    month_labels = [
+        "Jan", "Feb", "Mar", "Apr",
+        "May", "Jun", "Jul", "Aug",
+        "Sep", "Oct", "Nov", "Dec"
+        ]
+
+    month_counts = [0] * 12
+
     for row in monthly_data:
-        month_labels.append(months.get(row[0], row[0]))
-        month_counts.append(row[1])
+        month_number = int(row[0])
+
+        if 1 <= month_number <= 12:
+            month_counts[month_number - 1] = row[1]
 
 
     conn.close()
@@ -813,6 +935,24 @@ def update_status(complaint_id):
         new_timeline,
         complaint_id
     ))
+
+    # Admin has confirmed the complaint as resolved
+    if new_status == "Resolved":
+
+        cursor.execute("""
+            UPDATE complaints
+            SET admin_confirmed=1
+            WHERE id=?
+        """, (complaint_id,))
+
+    else:
+
+        cursor.execute("""
+            UPDATE complaints
+            SET admin_confirmed=0,
+                student_confirmed=0
+            WHERE id=?
+        """, (complaint_id,))
 
     cursor.execute("""
         SELECT student_name, email, title
@@ -895,6 +1035,100 @@ def update_status(complaint_id):
     conn.close()
 
     return redirect("/admin_dashboard")
+
+@app.route("/confirm_complaint/<int:complaint_id>", methods=["POST"])
+def confirm_complaint(complaint_id):
+
+    if "email" not in session:
+        return redirect("/login")
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    # Check complaint belongs to logged-in student
+    cursor.execute("""
+        SELECT status
+        FROM complaints
+        WHERE id=? AND email=?
+    """, (complaint_id, session["email"]))
+
+    complaint = cursor.fetchone()
+
+    if not complaint:
+        conn.close()
+        return "Complaint not found or access denied."
+
+    # Student can confirm only a resolved complaint
+    if complaint[0] != "Resolved":
+        conn.close()
+        return "Complaint is not resolved yet."
+
+    # Student confirmation
+    cursor.execute("""
+        UPDATE complaints
+        SET student_confirmed=1
+        WHERE id=? AND email=?
+    """, (complaint_id, session["email"]))
+
+    # Check whether both admin and student have confirmed
+    cursor.execute("""
+        SELECT *
+        FROM complaints
+        WHERE id=?
+        AND admin_confirmed=1
+        AND student_confirmed=1
+    """, (complaint_id,))
+
+    resolved_complaint = cursor.fetchone()
+
+    if resolved_complaint:
+
+        cursor.execute("""
+            INSERT OR REPLACE INTO resolved_complaints (
+                id,
+                student_name,
+                email,
+                title,
+                department,
+                description,
+                image,
+                status,
+                admin_reply,
+                last_updated,
+                date,
+                time,
+                priority,
+                timeline,
+                resolved_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            resolved_complaint[0],
+            resolved_complaint[1],
+            resolved_complaint[2],
+            resolved_complaint[3],
+            resolved_complaint[4],
+            resolved_complaint[5],
+            resolved_complaint[6],
+            resolved_complaint[7],
+            resolved_complaint[8],
+            resolved_complaint[9],
+            resolved_complaint[10],
+            resolved_complaint[11],
+            resolved_complaint[12],
+            resolved_complaint[13],
+            datetime.now().strftime("%d-%m-%Y %I:%M %p")
+        ))
+
+        cursor.execute("""
+            DELETE FROM complaints
+            WHERE id=?
+        """, (complaint_id,))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/my_complaints")
 @app.route("/generate_ai_reply", methods=["POST"])
 def generate_ai_reply():
 

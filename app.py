@@ -171,6 +171,7 @@ def init_db():
 
 @app.route("/")
 def home():
+    return redirect("/login")
     return render_template("index.html")
 @app.route("/test_ai")
 def test_ai():

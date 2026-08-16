@@ -1,183 +1,1414 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>CampusFix | Student Dashboard</title>
 
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
-        body{background:#f4f7fb;font-family:Arial, Helvetica, sans-serif;}
-        .navbar{background:#0d6efd;}
-        .welcome-box{
-            background:linear-gradient(135deg,#0d6efd,#6610f2);
-            color:white;padding:30px;border-radius:20px;
+
+        * {
+            box-sizing: border-box;
         }
-        .dashboard-card{
-            border:none;border-radius:18px;
-            box-shadow:0 8px 20px rgba(0,0,0,.08);
-            transition:.3s;
+
+        body {
+            margin: 0;
+            background: #f5f8fd;
+            font-family: "Inter", "Segoe UI", Arial, sans-serif;
+            color: #172033;
         }
-        .dashboard-card:hover{transform:translateY(-5px);}
-        .icon{font-size:40px;color:#0d6efd;}
-        .btn-custom{border-radius:30px;padding:10px 25px;}
+
+        /* =====================================================
+           NAVBAR
+        ===================================================== */
+
+        .top-navbar {
+            height: 76px;
+            background: #ffffff;
+            border-bottom: 1px solid #e7edf5;
+            display: flex;
+            align-items: center;
+            padding: 0 6%;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 3px 15px rgba(20, 40, 80, 0.035);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+
+            background: linear-gradient(
+                135deg,
+                #1769ff,
+                #315eea
+            );
+
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 23px;
+
+            box-shadow:
+                0 8px 20px rgba(23, 105, 255, 0.22);
+        }
+
+        .brand-name {
+            font-size: 25px;
+            font-weight: 800;
+            letter-spacing: -0.6px;
+            color: #1769ff;
+        }
+
+        .nav-actions {
+            margin-left: auto;
+
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+        }
+
+        .nav-btn {
+            position: relative;
+
+            border: 1px solid #e1e8f2;
+            background: #ffffff;
+
+            color: #26344b;
+
+            padding: 10px 17px;
+
+            border-radius: 11px;
+
+            text-decoration: none;
+
+            font-size: 14px;
+            font-weight: 650;
+
+            transition: all 0.25s ease;
+        }
+
+        .nav-btn i {
+            margin-right: 5px;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+
+            border-color: #bcd2ff;
+
+            color: #1769ff;
+
+            box-shadow:
+                0 7px 18px rgba(23, 105, 255, 0.08);
+        }
+
+        .logout-btn {
+            background: #1769ff;
+            border-color: #1769ff;
+            color: white;
+        }
+
+        .logout-btn:hover {
+            background: #0d5be8;
+            border-color: #0d5be8;
+            color: white;
+        }
+
+        .notification-btn {
+            position: relative;
+        }
+
+        .notification-badge {
+            position: absolute;
+
+            top: -6px;
+            right: -6px;
+
+            min-width: 20px;
+            height: 20px;
+
+            padding: 0 5px;
+
+            border-radius: 50%;
+
+            background: #ef4444;
+            color: white;
+
+            font-size: 10px;
+            font-weight: 700;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 2px solid white;
+        }
+
+
+        /* =====================================================
+           MAIN CONTAINER
+        ===================================================== */
+
+        .dashboard-container {
+            width: 88%;
+            max-width: 1320px;
+
+            margin: 38px auto 70px;
+        }
+
+
+        /* =====================================================
+           WELCOME SECTION
+        ===================================================== */
+
+        .welcome-section {
+            position: relative;
+
+            overflow: hidden;
+
+            padding: 38px 42px;
+
+            border-radius: 24px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #1769ff 0%,
+                    #315eea 50%,
+                    #5146e5 100%
+                );
+
+            color: white;
+
+            box-shadow:
+                0 20px 45px rgba(23, 105, 255, 0.18);
+        }
+
+        .welcome-section::before {
+            content: "";
+
+            position: absolute;
+
+            width: 320px;
+            height: 320px;
+
+            right: -100px;
+            top: -160px;
+
+            border-radius: 50%;
+
+            background: rgba(255,255,255,0.08);
+        }
+
+        .welcome-section::after {
+            content: "";
+
+            position: absolute;
+
+            width: 180px;
+            height: 180px;
+
+            right: 120px;
+            bottom: -130px;
+
+            border-radius: 50%;
+
+            background: rgba(255,255,255,0.05);
+        }
+
+        .welcome-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .welcome-label {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            padding: 7px 12px;
+
+            border-radius: 20px;
+
+            background: rgba(255,255,255,0.13);
+
+            font-size: 11px;
+            font-weight: 700;
+
+            letter-spacing: 1px;
+
+            margin-bottom: 13px;
+        }
+
+        .welcome-section h1 {
+            margin: 0;
+
+            font-size: 32px;
+            font-weight: 800;
+
+            letter-spacing: -0.8px;
+        }
+
+        .welcome-section p {
+            margin: 10px 0 0;
+
+            font-size: 16px;
+
+            color: rgba(255,255,255,0.90);
+
+            max-width: 700px;
+        }
+
+
+        /* =====================================================
+           STATISTICS
+        ===================================================== */
+
+        .stats-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 22px;
+
+            margin-top: 28px;
+        }
+
+        .stat-card {
+            position: relative;
+
+            overflow: hidden;
+
+            background: #ffffff;
+
+            border: 1px solid #e5ebf4;
+
+            border-radius: 20px;
+
+            padding: 25px;
+
+            min-height: 165px;
+
+            box-shadow:
+                0 8px 25px rgba(30, 55, 90, 0.055);
+
+            transition:
+                transform 0.3s ease,
+                box-shadow 0.3s ease,
+                border-color 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-6px);
+
+            border-color: #d2e0f8;
+
+            box-shadow:
+                0 18px 38px rgba(30, 55, 90, 0.10);
+        }
+
+        .stat-card::after {
+            content: "";
+
+            position: absolute;
+
+            width: 90px;
+            height: 90px;
+
+            right: -40px;
+            bottom: -40px;
+
+            border-radius: 50%;
+
+            background: #f7faff;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+
+            border-radius: 14px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 21px;
+
+            margin-bottom: 17px;
+        }
+
+        .blue-icon {
+            background: #edf4ff;
+            color: #1769ff;
+        }
+
+        .yellow-icon {
+            background: #fff7df;
+            color: #e5a000;
+        }
+
+        .green-icon {
+            background: #eafaf1;
+            color: #16a05d;
+        }
+
+        .red-icon {
+            background: #fff0f1;
+            color: #e0444f;
+        }
+
+        .stat-title {
+            color: #65738a;
+
+            font-size: 14px;
+
+            font-weight: 650;
+
+            margin-bottom: 6px;
+        }
+
+        .stat-number {
+            font-size: 31px;
+
+            font-weight: 800;
+
+            color: #172033;
+
+            line-height: 1;
+        }
+
+
+        /* =====================================================
+           GENERAL SECTION
+        ===================================================== */
+
+        .dashboard-section {
+            margin-top: 30px;
+
+            background: #ffffff;
+
+            border: 1px solid #e5ebf4;
+
+            border-radius: 22px;
+
+            padding: 30px;
+
+            box-shadow:
+                0 8px 25px rgba(30, 55, 90, 0.045);
+        }
+
+        .section-heading {
+            display: flex;
+
+            align-items: flex-start;
+
+            justify-content: space-between;
+
+            gap: 20px;
+
+            margin-bottom: 23px;
+        }
+
+        .section-heading h2 {
+            margin: 0;
+
+            font-size: 22px;
+
+            font-weight: 800;
+
+            letter-spacing: -0.3px;
+        }
+
+        .section-heading p {
+            margin: 7px 0 0;
+
+            color: #748198;
+
+            font-size: 14px;
+        }
+
+        .view-all-btn {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            color: #1769ff;
+
+            background: #edf4ff;
+
+            border: 1px solid #d9e6ff;
+
+            border-radius: 10px;
+
+            padding: 9px 14px;
+
+            text-decoration: none;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            white-space: nowrap;
+
+            transition: 0.25s ease;
+        }
+
+        .view-all-btn:hover {
+            background: #1769ff;
+            border-color: #1769ff;
+            color: white;
+        }
+
+
+        /* =====================================================
+           QUICK ACTIONS
+        ===================================================== */
+
+        .quick-actions {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 18px;
+        }
+
+        .action-card {
+            position: relative;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 16px;
+
+            padding: 21px;
+
+            border: 1px solid #e1e8f2;
+
+            border-radius: 17px;
+
+            text-decoration: none;
+
+            color: #172033;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #fbfdff,
+                    #f8fbff
+                );
+
+            transition: all 0.28s ease;
+        }
+
+        .action-card:hover {
+            transform: translateY(-4px);
+
+            border-color: #c7dbff;
+
+            box-shadow:
+                0 14px 30px rgba(23, 105, 255, 0.09);
+
+            color: #172033;
+        }
+
+        .action-icon {
+            width: 51px;
+            height: 51px;
+
+            flex-shrink: 0;
+
+            border-radius: 14px;
+
+            background: #edf4ff;
+
+            color: #1769ff;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-size: 21px;
+
+            transition: 0.25s ease;
+        }
+
+        .action-card:hover .action-icon {
+            background: #1769ff;
+            color: white;
+        }
+
+        .action-content h3 {
+            font-size: 16px;
+
+            margin: 0 0 5px;
+
+            font-weight: 750;
+        }
+
+        .action-content p {
+            margin: 0;
+
+            color: #77849a;
+
+            font-size: 13px;
+        }
+
+
+        /* =====================================================
+           RECENT COMPLAINTS TABLE
+        ===================================================== */
+
+        .table-container {
+            overflow-x: auto;
+
+            border: 1px solid #e7edf5;
+
+            border-radius: 15px;
+        }
+
+        .complaint-table {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 650px;
+        }
+
+        .complaint-table th {
+            background: #f7f9fc;
+
+            color: #65738a;
+
+            font-size: 12px;
+
+            font-weight: 750;
+
+            padding: 15px;
+
+            border-bottom: 1px solid #e5ebf3;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.4px;
+
+            white-space: nowrap;
+        }
+
+        .complaint-table td {
+            padding: 17px 15px;
+
+            font-size: 14px;
+
+            border-bottom: 1px solid #edf1f6;
+
+            vertical-align: middle;
+        }
+
+        .complaint-table tbody tr {
+            transition: 0.2s ease;
+        }
+
+        .complaint-table tbody tr:hover {
+            background: #fbfdff;
+        }
+
+        .complaint-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .complaint-id {
+            color: #1769ff;
+
+            font-weight: 750;
+
+            white-space: nowrap;
+        }
+
+        .complaint-title {
+            font-weight: 650;
+
+            color: #27344b;
+        }
+
+
+        /* =====================================================
+           STATUS
+        ===================================================== */
+
+        .status-badge {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 5px;
+
+            padding: 6px 11px;
+
+            border-radius: 20px;
+
+            font-size: 12px;
+
+            font-weight: 750;
+
+            white-space: nowrap;
+        }
+
+        .status-pending {
+            background: #fff5d6;
+            color: #a66b00;
+        }
+
+        .status-progress {
+            background: #e8f4ff;
+            color: #0877c9;
+        }
+
+        .status-resolved {
+            background: #e8f8ef;
+            color: #16804b;
+        }
+
+        .status-rejected {
+            background: #ffebed;
+            color: #c93442;
+        }
+
+        .status-other {
+            background: #eaf2ff;
+            color: #1769ff;
+        }
+
+
+        /* =====================================================
+           EMPTY STATE
+        ===================================================== */
+
+        .empty-message {
+            text-align: center;
+
+            color: #7a8799;
+
+            padding: 45px !important;
+        }
+
+        .empty-icon {
+            width: 54px;
+            height: 54px;
+
+            margin: 0 auto 12px;
+
+            border-radius: 15px;
+
+            background: #f1f5fa;
+
+            color: #8b98aa;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-size: 23px;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 1050px) {
+
+            .stats-grid {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+
+        @media (max-width: 700px) {
+
+            .top-navbar {
+                height: 70px;
+
+                padding: 0 4%;
+            }
+
+            .brand-name {
+                font-size: 21px;
+            }
+
+            .brand-icon {
+                width: 38px;
+                height: 38px;
+            }
+
+            .nav-actions {
+                gap: 6px;
+            }
+
+            .nav-btn {
+                padding: 9px 11px;
+            }
+
+            .nav-btn span {
+                display: none;
+            }
+
+            .nav-btn i {
+                margin: 0;
+            }
+
+            .dashboard-container {
+                width: 92%;
+
+                margin-top: 25px;
+            }
+
+            .welcome-section {
+                padding: 28px;
+            }
+
+            .welcome-section h1 {
+                font-size: 25px;
+            }
+
+            .welcome-section p {
+                font-size: 14px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+
+                gap: 15px;
+            }
+
+            .stat-card {
+                min-height: 145px;
+            }
+
+            .dashboard-section {
+                padding: 20px;
+            }
+
+            .section-heading {
+                flex-direction: column;
+            }
+
+            .view-all-btn {
+                width: fit-content;
+            }
+
+        }
+
     </style>
+
 </head>
+
 
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark px-4">
-  <a href="/notification" class="btn btn-warning me-2 position-relative">
 
-    <i class="bi bi-bell-fill"></i>
-    Updates
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
 
-    {% if notifications > 0 %}
-    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-        {{ notifications }}
-    </span>
-    {% endif %}
+<nav class="top-navbar">
 
-</a>
+    <a href="/student_dashboard" class="brand">
 
-    <div class="ms-auto">
-        <a href="/my_complaints" class="btn btn-warning me-2">
-            <i class="bi bi-bell-fill"></i>
-            Updates
+        <div class="brand-icon">
+            <i class="bi bi-check-lg"></i>
+        </div>
+
+        <span class="brand-name">
+            CampusFix
+        </span>
+
+    </a>
+
+
+    <div class="nav-actions">
+
+        <!-- Notifications -->
+
+        <a href="/notifications"
+           class="nav-btn notification-btn">
+
+            <i class="bi bi-bell"></i>
+
+            <span>Updates</span>
+
+            {% if notifications > 0 %}
+
+            <span class="notification-badge">
+                {{ notifications }}
+            </span>
+
+            {% endif %}
+
         </a>
-        <a href="/logout" class="btn btn-light">
-            <i class="bi bi-box-arrow-right"></i> Logout
+
+
+        <!-- Profile -->
+
+        <a href="/profile"
+           class="nav-btn">
+
+            <i class="bi bi-person"></i>
+
+            <span>Profile</span>
+
         </a>
+
+
+        <!-- Logout -->
+
+        <a href="/logout"
+           class="nav-btn logout-btn">
+
+            <i class="bi bi-box-arrow-right"></i>
+
+            <span>Logout</span>
+
+        </a>
+
     </div>
+
 </nav>
 
-<div class="container mt-4">
 
-    <div class="welcome-box mb-4">
-        <h2>Welcome, {{ name }} 👋</h2>
-        <p class="mb-0">Welcome to CampusFix Complaint Management System.</p>
-    </div>
 
-    <div class="row g-4">
+<!-- =====================================================
+     MAIN DASHBOARD
+===================================================== -->
 
-        <div class="col-md-3">
-            <div class="card dashboard-card p-4 text-center">
-                <i class="bi bi-file-earmark-text icon"></i>
-                <h5 class="mt-3">Total Complaints</h5>
-                <h2>{{ total_complaints }}</h2>
+<main class="dashboard-container">
+
+
+    <!-- =================================================
+         WELCOME
+    ================================================= -->
+
+    <section class="welcome-section">
+
+        <div class="welcome-content">
+
+            <div class="welcome-label">
+
+                <i class="bi bi-stars"></i>
+
+                STUDENT DASHBOARD
+
             </div>
+
+
+            <h1>
+                Welcome, {{ name }} 👋
+            </h1>
+
+
+            <p>
+                Manage your campus complaints, track progress,
+                and stay updated with CampusFix.
+            </p>
+
         </div>
 
-        <div class="col-md-3">
-            <div class="card dashboard-card p-4 text-center">
-                <i class="bi bi-hourglass-split icon"></i>
-                <h5 class="mt-3">Pending</h5>
-                <h2 class="text-warning">{{ pending_complaints }}</h2>
+    </section>
+
+
+
+    <!-- =================================================
+         STATISTICS
+    ================================================= -->
+
+    <section class="stats-grid">
+
+
+        <!-- Total -->
+
+        <div class="stat-card">
+
+            <div class="stat-icon blue-icon">
+
+                <i class="bi bi-file-earmark-text"></i>
+
             </div>
+
+
+            <div class="stat-title">
+                Total Complaints
+            </div>
+
+
+            <div class="stat-number">
+                {{ total_complaints }}
+            </div>
+
         </div>
 
-        <div class="col-md-3">
-            <div class="card dashboard-card p-4 text-center">
-                <i class="bi bi-check-circle-fill icon"></i>
-                <h5 class="mt-3">Resolved</h5>
-                <h2 class="text-success">{{ resolved_complaints }}</h2>
+
+
+        <!-- Pending -->
+
+        <div class="stat-card">
+
+            <div class="stat-icon yellow-icon">
+
+                <i class="bi bi-hourglass-split"></i>
+
             </div>
+
+
+            <div class="stat-title">
+                Pending
+            </div>
+
+
+            <div class="stat-number">
+                {{ pending_complaints }}
+            </div>
+
         </div>
 
-        <div class="col-md-3">
-            <div class="card dashboard-card p-4 text-center">
-                <i class="bi bi-x-circle-fill icon"></i>
-                <h5 class="mt-3">Rejected</h5>
-                <h2 class="text-danger">{{ rejected_complaints }}</h2>
+
+
+        <!-- Resolved -->
+
+        <div class="stat-card">
+
+            <div class="stat-icon green-icon">
+
+                <i class="bi bi-check-circle"></i>
+
             </div>
+
+
+            <div class="stat-title">
+                Resolved
+            </div>
+
+
+            <div class="stat-number">
+                {{ resolved_complaints }}
+            </div>
+
         </div>
 
-    </div>
 
-    <div class="card dashboard-card mt-5 p-4">
-        <h4 class="mb-4">Quick Actions</h4>
 
-        <div class="d-flex gap-3 flex-wrap">
-            <a href="/add_complaint" class="btn btn-primary btn-custom">
-                <i class="bi bi-plus-circle"></i> Add Complaint
+        <!-- Rejected -->
+
+        <div class="stat-card">
+
+            <div class="stat-icon red-icon">
+
+                <i class="bi bi-x-circle"></i>
+
+            </div>
+
+
+            <div class="stat-title">
+                Rejected
+            </div>
+
+
+            <div class="stat-number">
+                {{ rejected_complaints }}
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- =================================================
+         QUICK ACTIONS
+    ================================================= -->
+
+    <section class="dashboard-section">
+
+
+        <div class="section-heading">
+
+            <div>
+
+                <h2>
+                    Quick Actions
+                </h2>
+
+                <p>
+                    Quickly access the most important CampusFix features.
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="quick-actions">
+
+
+            <!-- File Complaint -->
+
+            <a href="/add_complaint"
+               class="action-card">
+
+                <div class="action-icon">
+
+                    <i class="bi bi-plus-lg"></i>
+
+                </div>
+
+
+                <div class="action-content">
+
+                    <h3>
+                        File a Complaint
+                    </h3>
+
+                    <p>
+                        Report a new campus issue
+                    </p>
+
+                </div>
+
             </a>
 
-            <a href="/my_complaints" class="btn btn-outline-primary btn-custom">
-                <i class="bi bi-list-check"></i> My Complaints
+
+
+            <!-- My Complaints -->
+
+            <a href="/my_complaints"
+               class="action-card">
+
+                <div class="action-icon">
+
+                    <i class="bi bi-list-check"></i>
+
+                </div>
+
+
+                <div class="action-content">
+
+                    <h3>
+                        My Complaints
+                    </h3>
+
+                    <p>
+                        View and track your complaints
+                    </p>
+
+                </div>
+
             </a>
 
-            <a href="/profile" class="btn btn-outline-dark btn-custom">
-                <i class="bi bi-person-circle"></i> My Profile
+
+
+            <!-- Profile -->
+
+            <a href="/profile"
+               class="action-card">
+
+                <div class="action-icon">
+
+                    <i class="bi bi-person-circle"></i>
+
+                </div>
+
+
+                <div class="action-content">
+
+                    <h3>
+                        My Profile
+                    </h3>
+
+                    <p>
+                        Manage your account details
+                    </p>
+
+                </div>
+
             </a>
+
+
         </div>
-    </div>
 
-</div>
-<div class="card dashboard-card mt-5 p-4">
-    <h4 class="mb-4">
-        <i class="bi bi-clock-history"></i>
-        Recent Complaints
-    </h4>
+    </section>
 
-    <div class="table-responsive">
-        <table class="table table-hover text-center align-middle">
-            <thead class="table-primary">
-                <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
 
-            <tbody>
 
-            {% for complaint in recent_complaints %}
+    <!-- =================================================
+         RECENT COMPLAINTS
+    ================================================= -->
 
-                <tr>
-                    <td>
-                        CF-2026-{{ "%04d"|format(complaint[0]) }}
-                    </td>
+    <section class="dashboard-section">
 
-                    <td>{{ complaint[1] }}</td>
 
-                    <td>
+        <div class="section-heading">
 
-                        {% if complaint[2] == "Pending" %}
-                            <span class="badge bg-warning text-dark">Pending</span>
 
-                        {% elif complaint[2] == "Resolved" %}
-                            <span class="badge bg-success">Resolved</span>
+            <div>
 
-                        {% elif complaint[2] == "Rejected" %}
-                            <span class="badge bg-danger">Rejected</span>
+                <h2>
 
-                        {% else %}
-                            <span class="badge bg-info">{{ complaint[2] }}</span>
-                        {% endif %}
+                    <i class="bi bi-clock-history me-1"></i>
 
-                    </td>
+                    Recent Complaints
 
-                    <td>{{ complaint[3] }}</td>
+                </h2>
 
-                </tr>
+                <p>
+                    Your latest complaint activity.
+                </p>
 
-            {% else %}
+            </div>
 
-                <tr>
-                    <td colspan="4" class="text-muted">
-                        No complaints yet.
-                    </td>
-                </tr>
 
-            {% endfor %}
+            <!-- View All -->
 
-            </tbody>
-        </table>
-    </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+            <a href="/my_complaints"
+               class="view-all-btn">
+
+                View All
+
+                <i class="bi bi-arrow-right"></i>
+
+            </a>
+
+
+        </div>
+
+
+
+        <div class="table-container">
+
+
+            <table class="complaint-table">
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            ID
+                        </th>
+
+                        <th>
+                            Complaint
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+
+                <tbody>
+
+
+                {% for complaint in recent_complaints %}
+
+
+                    <tr>
+
+
+                        <!-- ID -->
+
+                        <td class="complaint-id">
+
+                            CF-2026-{{ "%04d"|format(complaint[0]) }}
+
+                        </td>
+
+
+
+                        <!-- Complaint -->
+
+                        <td class="complaint-title">
+
+                            {{ complaint[1] }}
+
+                        </td>
+
+
+
+                        <!-- Status -->
+
+                        <td>
+
+
+                            {% if complaint[2] == "Pending" %}
+
+                                <span class="status-badge status-pending">
+
+                                    <i class="bi bi-clock"></i>
+
+                                    Pending
+
+                                </span>
+
+
+                            {% elif complaint[2] == "In Progress" %}
+
+                                <span class="status-badge status-progress">
+
+                                    <i class="bi bi-arrow-repeat"></i>
+
+                                    In Progress
+
+                                </span>
+
+
+                            {% elif complaint[2] == "Resolved" %}
+
+                                <span class="status-badge status-resolved">
+
+                                    <i class="bi bi-check-circle"></i>
+
+                                    Resolved
+
+                                </span>
+
+
+                            {% elif complaint[2] == "Rejected" %}
+
+                                <span class="status-badge status-rejected">
+
+                                    <i class="bi bi-x-circle"></i>
+
+                                    Rejected
+
+                                </span>
+
+
+                            {% else %}
+
+                                <span class="status-badge status-other">
+
+                                    {{ complaint[2] }}
+
+                                </span>
+
+                            {% endif %}
+
+
+                        </td>
+
+
+
+                        <!-- Date -->
+
+                        <td>
+
+                            {{ complaint[3] }}
+
+                        </td>
+
+
+                    </tr>
+
+
+                {% else %}
+
+
+                    <!-- Empty -->
+
+                    <tr>
+
+                        <td colspan="4"
+                            class="empty-message">
+
+
+                            <div class="empty-icon">
+
+                                <i class="bi bi-inbox"></i>
+
+                            </div>
+
+
+                            <strong>
+                                No complaints yet
+                            </strong>
+
+
+                            <div class="small mt-1">
+                                Your submitted complaints will appear here.
+                            </div>
+
+
+                        </td>
+
+                    </tr>
+
+
+                {% endfor %}
+
+
+                </tbody>
+
+
+            </table>
+
+
+        </div>
+
+
+    </section>
+
+
+</main>
+
+
 </body>
+
 </html>

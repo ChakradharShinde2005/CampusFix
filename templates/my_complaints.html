@@ -1,282 +1,1569 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>My Complaints | CampusFix</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Complaints | CampusFix</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f5f8fd;
+            font-family: "Inter", "Segoe UI", Arial, sans-serif;
+            color: #172033;
+        }
+
+        /* ================= NAVBAR ================= */
+
+        .top-navbar {
+            min-height: 76px;
+            background: #ffffff;
+            border-bottom: 1px solid #e8edf5;
+            display: flex;
+            align-items: center;
+            padding: 0 6%;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 12px rgba(20, 40, 80, 0.04);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .brand-icon {
+            width: 46px;
+            height: 46px;
+            background: #1769ff;
+            color: white;
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 8px 20px rgba(23, 105, 255, 0.20);
+        }
+
+        .brand-name {
+            font-size: 25px;
+            font-weight: 800;
+            color: #1769ff;
+        }
+
+        .nav-actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            border: 1px solid #e1e7f0;
+            background: #ffffff;
+            color: #26344b;
+            padding: 10px 16px;
+            border-radius: 11px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .nav-btn:hover {
+            border-color: #1769ff;
+            color: #1769ff;
+            transform: translateY(-1px);
+        }
+
+        .logout-btn {
+            background: #1769ff;
+            color: white;
+            border-color: #1769ff;
+        }
+
+        .logout-btn:hover {
+            background: #0d5be8;
+            color: white;
+        }
+
+        .notification-btn {
+            position: relative;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            min-width: 19px;
+            height: 19px;
+            border-radius: 50%;
+            background: #ef4444;
+            color: white;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        /* ================= MAIN ================= */
+
+        .page-container {
+            width: 88%;
+            max-width: 1480px;
+            margin: 38px auto 70px;
+        }
+
+        /* ================= PAGE HEADER ================= */
+
+        .page-header {
+            position: relative;
+            overflow: hidden;
+            padding: 34px 44px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #1769ff, #4b46e8);
+            color: white;
+            box-shadow: 0 18px 45px rgba(23, 105, 255, 0.17);
+            margin-bottom: 28px;
+        }
+
+        .page-header::before {
+            content: "";
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            right: -80px;
+            top: -130px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.10);
+        }
+
+        .page-header::after {
+            content: "";
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            right: 110px;
+            bottom: -105px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .header-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 14px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.13);
+            border: 1px solid rgba(255,255,255,0.18);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 800;
+        }
+
+        .page-header p {
+            margin: 8px 0 0;
+            font-size: 15px;
+            color: rgba(255,255,255,0.90);
+        }
+
+        /* ================= MAIN CARD ================= */
+
+        .main-card {
+            background: #ffffff;
+            border: 1px solid #e4eaf3;
+            border-radius: 22px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(30, 55, 90, 0.055);
+        }
+
+        /* ================= SEARCH ================= */
+
+        .search-wrapper {
+            display: flex;
+            gap: 10px;
+            padding: 12px;
+            background: #f8faff;
+            border: 1px solid #e4eaf3;
+            border-radius: 17px;
+            margin-bottom: 28px;
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #60708a;
+            font-size: 18px;
+            z-index: 2;
+        }
+
+        .search-box {
+            width: 100%;
+            height: 52px;
+            border: 1px solid #dce4ef;
+            border-radius: 12px;
+            padding: 0 16px 0 46px;
+            outline: none;
+            font-size: 14px;
+            background: #ffffff;
+        }
+
+        .search-box:focus {
+            border-color: #1769ff;
+            box-shadow: 0 0 0 3px rgba(23,105,255,0.10);
+        }
+
+        .search-btn,
+        .reset-btn {
+            height: 52px;
+            padding: 0 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            border: none;
+            white-space: nowrap;
+        }
+
+        .search-btn {
+            background: #1769ff;
+            color: white;
+        }
+
+        .search-btn:hover {
+            background: #0d5be8;
+        }
+
+        .reset-btn {
+            background: #ffffff;
+            color: #26344b;
+            border: 1px solid #dce4ef;
+        }
+
+        .reset-btn:hover {
+            background: #f5f8fd;
+        }
+
+        /* ================= TABLE AREA ================= */
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            border: 1px solid #e5ebf3;
+            border-radius: 16px;
+            background: #ffffff;
+        }
+
+        .complaint-table {
+            width: 100%;
+            min-width: 1250px;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 0;
+        }
+
+        .complaint-table thead th {
+            background: #f6f8fc;
+            color: #65738a;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 17px 14px;
+            border-bottom: 1px solid #e5ebf3;
+            white-space: nowrap;
+        }
+
+        .complaint-table tbody tr {
+            background: #ffffff;
+            transition: 0.2s ease;
+        }
+
+        .complaint-table tbody tr:hover {
+            background: #fbfdff;
+        }
+
+        .complaint-table tbody td {
+            padding: 18px 14px;
+            border-bottom: 1px solid #edf1f6;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .complaint-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Column widths */
+
+        .col-id {
+            min-width: 125px;
+        }
+
+        .col-title {
+            min-width: 190px;
+        }
+
+        .col-dept {
+            min-width: 130px;
+        }
+
+        .col-priority {
+            min-width: 110px;
+        }
+
+        .col-evidence {
+            min-width: 115px;
+        }
+
+        .col-date {
+            min-width: 135px;
+        }
+
+        .col-status {
+            min-width: 150px;
+        }
+
+        .col-reply {
+            min-width: 220px;
+            max-width: 280px;
+        }
+
+        .col-details {
+            min-width: 100px;
+        }
+
+        .col-download {
+            min-width: 125px;
+            padding-right: 20px !important;
+        }
+
+        /* ================= CONTENT ================= */
+
+        .complaint-id {
+            color: #1769ff;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .complaint-title {
+            font-weight: 700;
+            color: #172033;
+            line-height: 1.4;
+        }
+
+        .department-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 11px;
+            border-radius: 20px;
+            background: #edf4ff;
+            color: #1769ff;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .priority-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 11px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .priority-high {
+            background: #ffebed;
+            color: #d63345;
+        }
+
+        .priority-medium {
+            background: #fff5d6;
+            color: #a66b00;
+        }
+
+        .priority-low {
+            background: #e8f8ef;
+            color: #16804b;
+        }
+
+        /* ================= EVIDENCE ================= */
+
+        .evidence-img {
+            width: 62px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 9px;
+            cursor: pointer;
+            border: 1px solid #e0e6ef;
+            transition: 0.25s ease;
+        }
+
+        .evidence-img:hover {
+            transform: scale(1.05);
+        }
+
+        .no-image {
+            color: #8a96a8;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        /* ================= DATE ================= */
+
+        .date-box {
+            white-space: nowrap;
+        }
+
+        .date-main {
+            font-weight: 700;
+            color: #26344b;
+        }
+
+        .date-time {
+            color: #8490a3;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        /* ================= STATUS ================= */
+
+        .status-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .status-pending {
+            background: #fff5d6;
+            color: #a66b00;
+        }
+
+        .status-progress {
+            background: #e6f4ff;
+            color: #0879bd;
+        }
+
+        .status-resolved {
+            background: #e8f8ef;
+            color: #16804b;
+        }
+
+        .status-rejected {
+            background: #ffebed;
+            color: #c93442;
+        }
+
+        .status-other {
+            background: #edf4ff;
+            color: #1769ff;
+        }
+
+        .solved-btn {
+            border: none;
+            background: #15965d;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .solved-btn:hover {
+            background: #117c4d;
+        }
+
+        /* ================= ADMIN REPLY ================= */
+
+        .reply-text {
+            color: #26344b;
+            font-weight: 600;
+            line-height: 1.45;
+        }
+
+        .reply-updated {
+            color: #8490a3;
+            font-size: 12px;
+            margin-top: 6px;
+            white-space: nowrap;
+        }
+
+        .no-reply {
+            color: #8a96a8;
+            font-size: 13px;
+        }
+
+        /* ================= ACTION BUTTONS ================= */
+
+        .view-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #172033;
+            color: white;
+            border: none;
+            padding: 9px 14px;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .view-btn:hover {
+            background: #0d1422;
+            color: white;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-width: 108px;
+            background: #edf4ff;
+            color: #1769ff;
+            border: 1px solid #d3e2ff;
+            padding: 9px 13px;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 800;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .download-btn:hover {
+            background: #1769ff;
+            color: white;
+            border-color: #1769ff;
+        }
+
+        /* ================= EMPTY ================= */
+
+        .empty-message {
+            text-align: center;
+            color: #7a8799;
+            padding: 45px !important;
+        }
+
+        /* ================= MODALS ================= */
+
+        .modal-content {
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #edf1f6;
+        }
+
+        .modal-title {
+            font-weight: 800;
+        }
+
+        .progress {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            font-weight: 700;
+        }
+
+        /* ================= SCROLLBAR ================= */
+
+        .table-wrapper::-webkit-scrollbar {
+            height: 10px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-track {
+            background: #eef2f7;
+            border-radius: 10px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: #b7c3d5;
+            border-radius: 10px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #8fa0b8;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 900px) {
+
+            .page-container {
+                width: 94%;
+                margin-top: 25px;
+            }
+
+            .page-header {
+                padding: 28px;
+            }
+
+            .main-card {
+                padding: 18px;
+            }
+
+            .search-wrapper {
+                flex-wrap: wrap;
+            }
+
+            .search-input-wrapper {
+                width: 100%;
+                flex: 100%;
+            }
+
+            .search-btn,
+            .reset-btn {
+                flex: 1;
+            }
+        }
+
+        @media (max-width: 650px) {
+
+            .top-navbar {
+                padding: 0 4%;
+            }
+
+            .brand-name {
+                font-size: 21px;
+            }
+
+            .nav-btn {
+                padding: 9px 11px;
+            }
+
+            .nav-btn span {
+                display: none;
+            }
+
+            .page-container {
+                width: 94%;
+            }
+
+            .page-header h1 {
+                font-size: 26px;
+            }
+
+            .page-header p {
+                font-size: 14px;
+            }
+
+            .main-card {
+                padding: 12px;
+            }
+
+            .search-wrapper {
+                padding: 9px;
+            }
+        }
+
+    </style>
 </head>
 
-<body style="background:#f4f7fb;">
+<body>
 
-<nav class="navbar navbar-dark bg-primary px-4">
-    <a class="navbar-brand fw-bold" href="/student_dashboard">CampusFix</a>
-    <div>
-        <a href="/student_dashboard" class="btn btn-light btn-sm">Dashboard</a>
-        <a href="/add_complaint" class="btn btn-outline-light btn-sm">Add Complaint</a>
-        <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+<!-- ================= NAVBAR ================= -->
+
+<nav class="top-navbar">
+
+    <a href="/student_dashboard" class="brand">
+
+        <div class="brand-icon">
+            <i class="bi bi-check-lg"></i>
+        </div>
+
+        <span class="brand-name">
+            CampusFix
+        </span>
+
+    </a>
+
+    <div class="nav-actions">
+
+        <a href="/notifications" class="nav-btn notification-btn">
+
+            <i class="bi bi-bell"></i>
+
+            <span>Updates</span>
+
+            {% set notification_count = notifications|default(0) %}
+
+            {% if notification_count > 0 %}
+
+                <span class="notification-badge">
+                    {{ notification_count }}
+                </span>
+
+            {% endif %}
+
+        </a>
+
+        <a href="/student_dashboard" class="nav-btn">
+
+            <i class="bi bi-grid"></i>
+
+            <span>Dashboard</span>
+
+        </a>
+
+        <a href="/add_complaint" class="nav-btn">
+
+            <i class="bi bi-plus-circle"></i>
+
+            <span>Add Complaint</span>
+
+        </a>
+
+        <a href="/logout" class="nav-btn logout-btn">
+
+            <i class="bi bi-box-arrow-right"></i>
+
+            <span>Logout</span>
+
+        </a>
+
     </div>
+
 </nav>
 
-<div class="container mt-4">
 
-    <div class="bg-primary text-white p-4 rounded-4 mb-4">
-        <h2>My Complaints</h2>
-        <p class="mb-0">Track your submitted complaints and admin replies.</p>
-    </div>
+<!-- ================= MAIN ================= -->
 
-    <div class="card shadow border-0 rounded-4 p-4">
-        <form method="GET" action="/my_complaints" class="mb-4">
-            <div class="input-group">
-                <input type="text" name="search" class="form-control"
-                       placeholder="Search by title, department, status or date..."
-                       value="{{ search }}">
-                <button class="btn btn-primary" type="submit">Search</button>
-                <a href="/my_complaints" class="btn btn-secondary">Reset</a>
+<main class="page-container">
+
+
+    <!-- PAGE HEADER -->
+
+    <section class="page-header">
+
+        <div class="header-content">
+
+            <div class="header-label">
+
+                <i class="bi bi-clipboard-check"></i>
+
+                Complaint Management
+
             </div>
+
+            <h1>
+                My Complaints
+            </h1>
+
+            <p>
+                Track your complaints, monitor progress and view department responses.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- MAIN CARD -->
+
+    <section class="main-card">
+
+
+        <!-- ================= SEARCH ================= -->
+
+        <form method="GET" action="/my_complaints">
+
+            <div class="search-wrapper">
+
+                <div class="search-input-wrapper">
+
+                    <i class="bi bi-search search-icon"></i>
+
+                    <input
+                        type="text"
+                        name="search"
+                        class="search-box"
+                        placeholder="Search by title, department, status or date..."
+                        value="{{ search|default('') }}"
+                    >
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="search-btn"
+                >
+
+                    <i class="bi bi-search me-1"></i>
+
+                    Search
+
+                </button>
+
+                <a
+                    href="/my_complaints"
+                    class="reset-btn d-flex align-items-center justify-content-center"
+                >
+
+                    <i class="bi bi-arrow-counterclockwise me-1"></i>
+
+                    Reset
+
+                </a>
+
+            </div>
+
         </form>
 
-        <div class="table-responsive">
-            <table class="table table-hover align-middle text-center">
-                <thead class="table-primary">
+
+        <!-- ================= TABLE ================= -->
+
+        <div class="table-wrapper">
+
+            <table class="complaint-table">
+
+                <thead>
+
                     <tr>
-                        <th>ID</th>
-                        <th>Title</th>
-                        <th>Department</th>
-                        <th>Priority</th>
-                        <th>Evidence</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th>Admin Reply</th>
-                        <th>Details</th>
-                        <th>Download</th>
+
+                        <th class="col-id">
+                            ID
+                        </th>
+
+                        <th class="col-title">
+                            Complaint
+                        </th>
+
+                        <th class="col-dept">
+                            Department
+                        </th>
+
+                        <th class="col-priority">
+                            Priority
+                        </th>
+
+                        <th class="col-evidence">
+                            Evidence
+                        </th>
+
+                        <th class="col-date">
+                            Date
+                        </th>
+
+                        <th class="col-status">
+                            Status
+                        </th>
+
+                        <th class="col-reply">
+                            Admin Reply
+                        </th>
+
+                        <th class="col-details text-center">
+                            Details
+                        </th>
+
+                        <th class="col-download text-center">
+                            Download
+                        </th>
+
                     </tr>
+
                 </thead>
 
+
                 <tbody>
+
                 {% for complaint in complaints %}
+
                     <tr>
-                        <td><b>CF-2026-{{ "%04d"|format(complaint[0]) }}</b></td>
-                        <td style="min-width:120px;">{{ complaint[3] }}</td>
-                        <td><span class="badge bg-primary">{{ complaint[4] }}</span></td>
 
-                        <td>
+
+                        <!-- ID -->
+
+                        <td class="col-id">
+
+                            <span class="complaint-id">
+
+                                CF-2026-{{ "%04d"|format(complaint[0]) }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- TITLE -->
+
+                        <td class="col-title">
+
+                            <div class="complaint-title">
+
+                                {{ complaint[3] }}
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- DEPARTMENT -->
+
+                        <td class="col-dept">
+
+                            <span class="department-badge">
+
+                                <i class="bi bi-building"></i>
+
+                                {{ complaint[4] }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- PRIORITY -->
+
+                        <td class="col-priority">
+
                             {% if complaint[12] == "High" %}
-                                <span class="badge bg-danger">High</span>
+
+                                <span class="priority-badge priority-high">
+
+                                    <i class="bi bi-arrow-up-circle"></i>
+
+                                    High
+
+                                </span>
+
                             {% elif complaint[12] == "Medium" %}
-                                <span class="badge bg-warning text-dark">Medium</span>
+
+                                <span class="priority-badge priority-medium">
+
+                                    <i class="bi bi-dash-circle"></i>
+
+                                    Medium
+
+                                </span>
+
                             {% else %}
-                                <span class="badge bg-success">Low</span>
+
+                                <span class="priority-badge priority-low">
+
+                                    <i class="bi bi-arrow-down-circle"></i>
+
+                                    Low
+
+                                </span>
+
                             {% endif %}
+
                         </td>
 
-                        <td>
+
+                        <!-- EVIDENCE -->
+
+                        <td class="col-evidence">
+
                             {% if complaint[6] %}
-                                <img src="{{ url_for('static', filename='uploads/' + complaint[6]) }}"
-                                     width="70" height="55"
-                                     style="object-fit:cover;border-radius:10px; cursor:pointer;"
-                                     data-bs-toggle="modal"
-                                     data-bs-target="#imageModal{{ complaint[0] }}">
-                            {% else %}
-                                <span class="text-muted">No Image</span>
-                            {% endif %}
-                        </td>
 
-                        <td style="min-width:130px;">
-                            {{ complaint[8] }}<br>
-                            <small>{{ complaint[9] }}</small>
-                        </td>
-
-                        <td>
-                            {% if complaint[7] == "Pending" %}
-                                <span class="badge bg-warning text-dark">Pending</span>
-                            {% elif complaint[7] == "In Progress" %}
-                                <span class="badge bg-info text-dark">In Progress</span>
-                            {% elif complaint[7] == "Resolved" %}
-                                <span class="badge bg-success">Resolved</span>
-                            {% elif complaint[7] == "Rejected" %}
-                                <span class="badge bg-danger">Rejected</span>
-                            {% else %}
-                                <span class="badge bg-secondary">{{ complaint[7] }}</span>
-                            {% endif %}
-                            {% if complaint[7] == "Resolved" %}
-                                <form method="POST"
-                                    action="{{ url_for('confirm_complaint', complaint_id=complaint[0]) }}"
-                                    class="mt-2">
-
-                                    <button type="submit"
-                                            class="btn btn-success btn-sm">
-                                        ✅ Problem Solved
-                                    </button>
-
-                                </form>
-                            {% endif %}
-                        </td>
-
-                        <td style="min-width:220px;">
-                            {% if complaint[10] %}
-                                {{ complaint[10] }}
-                                <br><small class="text-muted">Updated: {{ complaint[11] }}</small>
-                            {% else %}
-                                <span class="text-muted">No reply yet</span>
-                            {% endif %}
-                        </td>
-
-                        <td>
-                            <button class="btn btn-dark btn-sm"
+                                <img
+                                    src="{{ url_for('static', filename='uploads/' + complaint[6]) }}"
+                                    class="evidence-img"
                                     data-bs-toggle="modal"
-                                    data-bs-target="#detailsModal{{ complaint[0] }}">
-                                View
-                            </button>
-                        </td>
-                        <td>
-                            <a href="/download_receipt/{{ complaint[0] }}"
-                            class="btn btn-success btn-sm">
-                                Download
-                            </a>
-                        </td>
-                    </tr>
+                                    data-bs-target="#imageModal{{ complaint[0] }}"
+                                    alt="Complaint Evidence"
+                                >
 
-                    <div class="modal fade" id="detailsModal{{ complaint[0] }}" tabindex="-1">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
-                            <div class="modal-content rounded-4">
-                                <div class="modal-header bg-primary text-white">
-                                    <h5 class="modal-title">Complaint Details</h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            {% else %}
+
+                                <span class="no-image">
+
+                                    <i class="bi bi-image"></i>
+
+                                    No Image
+
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- DATE -->
+
+                        <td class="col-date">
+
+                            <div class="date-box">
+
+                                <div class="date-main">
+
+                                    <i class="bi bi-calendar3 me-1 text-primary"></i>
+
+                                    {{ complaint[8] }}
+
                                 </div>
 
-                                <div class="modal-body">
-                                    <p><b>Complaint ID:</b> CF-2026-{{ "%04d"|format(complaint[0]) }}</p>
-                                    <p><b>Title:</b> {{ complaint[3] }}</p>
-                                    <p><b>Department:</b> {{ complaint[4] }}</p>
-                                    <p><b>Priority:</b> {{ complaint[12] }}</p>
-                                    <p><b>Description:</b> {{ complaint[5] }}</p>
-                                    <p><b>Status:</b> {{ complaint[7] }}</p>
-                                    <hr>
+                                <div class="date-time">
 
-                                    <h6 class="mb-3">Complaint Progress</h6>
+                                    <i class="bi bi-clock me-1"></i>
 
-                                    <div class="progress" style="height:25px;">
+                                    {{ complaint[9] }}
 
-                                    {% if complaint[7] == "Pending" %}
+                                </div>
 
-                                    <div class="progress-bar bg-warning"
-                                        style="width:33%;">
-                                        Submitted
-                                    </div>
+                            </div>
 
-                                    {% elif complaint[7] == "In Progress" %}
+                        </td>
 
-                                    <div class="progress-bar bg-info"
-                                        style="width:66%;">
+
+                        <!-- STATUS -->
+
+                        <td class="col-status">
+
+                            <div class="status-container">
+
+                                {% if complaint[7] == "Pending" %}
+
+                                    <span class="status-badge status-pending">
+
+                                        <i class="bi bi-clock"></i>
+
+                                        Pending
+
+                                    </span>
+
+                                {% elif complaint[7] == "In Progress" %}
+
+                                    <span class="status-badge status-progress">
+
+                                        <i class="bi bi-arrow-repeat"></i>
+
                                         In Progress
-                                    </div>
 
-                                    {% elif complaint[7] == "Resolved" %}
+                                    </span>
 
-                                    <div class="progress-bar bg-success"
-                                        style="width:100%;">
-                                        Resolved ✔
-                                    </div>
+                                {% elif complaint[7] == "Resolved" %}
 
-                                    {% elif complaint[7] == "Rejected" %}
+                                    <span class="status-badge status-resolved">
 
-                                    <div class="progress-bar bg-danger"
-                                        style="width:100%;">
+                                        <i class="bi bi-check-circle"></i>
+
+                                        Resolved
+
+                                    </span>
+
+                                {% elif complaint[7] == "Rejected" %}
+
+                                    <span class="status-badge status-rejected">
+
+                                        <i class="bi bi-x-circle"></i>
+
                                         Rejected
-                                    </div>
 
-                                    {% endif %}
+                                    </span>
 
-                                    </div>
+                                {% else %}
+
+                                    <span class="status-badge status-other">
+
+                                        {{ complaint[7] }}
+
+                                    </span>
+
+                                {% endif %}
+
+
+                                {% if complaint[7] == "Resolved" %}
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('confirm_complaint', complaint_id=complaint[0]) }}"
+                                    >
+
+                                        <button
+                                            type="submit"
+                                            class="solved-btn"
+                                        >
+
+                                            <i class="bi bi-check2-circle"></i>
+
+                                            Problem Solved
+
+                                        </button>
+
+                                    </form>
+
+                                {% endif %}
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- ADMIN REPLY -->
+
+                        <td class="col-reply">
+
+                            {% if complaint[10] %}
+
+                                <div class="reply-text">
+
+                                    {{ complaint[10] }}
+
+                                </div>
+
+                                <div class="reply-updated">
+
+                                    <i class="bi bi-clock"></i>
+
+                                    Updated: {{ complaint[11] }}
+
+                                </div>
+
+                            {% else %}
+
+                                <span class="no-reply">
+
+                                    No reply yet
+
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- DETAILS -->
+
+                        <td class="col-details text-center">
+
+                            <button
+                                type="button"
+                                class="view-btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#detailsModal{{ complaint[0] }}"
+                            >
+
+                                <i class="bi bi-eye"></i>
+
+                                View
+
+                            </button>
+
+                        </td>
+
+
+                        <!-- DOWNLOAD -->
+
+                        <td class="col-download text-center">
+
+                            <a
+                                href="/download_receipt/{{ complaint[0] }}"
+                                class="download-btn"
+                            >
+
+                                <i class="bi bi-download"></i>
+
+                                Download
+
+                            </a>
+
+                        </td>
+
+
+                    </tr>
+
+
+                    <!-- ================= DETAILS MODAL ================= -->
+
+                    <div
+                        class="modal fade"
+                        id="detailsModal{{ complaint[0] }}"
+                        tabindex="-1"
+                        aria-hidden="true"
+                    >
+
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+
+                            <div class="modal-content">
+
+
+                                <div class="modal-header bg-primary text-white">
+
+                                    <h5 class="modal-title">
+
+                                        <i class="bi bi-clipboard-check me-2"></i>
+
+                                        Complaint Details
+
+                                    </h5>
+
+                                    <button
+                                        type="button"
+                                        class="btn-close btn-close-white"
+                                        data-bs-dismiss="modal"
+                                    ></button>
+
+                                </div>
+
+
+                                <div class="modal-body p-4">
+
+                                    <p>
+                                        <b>Complaint ID:</b>
+                                        CF-2026-{{ "%04d"|format(complaint[0]) }}
+                                    </p>
+
+                                    <p>
+                                        <b>Title:</b>
+                                        {{ complaint[3] }}
+                                    </p>
+
+                                    <p>
+                                        <b>Department:</b>
+                                        {{ complaint[4] }}
+                                    </p>
+
+                                    <p>
+                                        <b>Priority:</b>
+                                        {{ complaint[12] }}
+                                    </p>
+
+                                    <p>
+                                        <b>Description:</b>
+                                        {{ complaint[5] }}
+                                    </p>
+
+                                    <p>
+                                        <b>Status:</b>
+                                        {{ complaint[7] }}
+                                    </p>
+
+
                                     <hr>
 
-                                    <h6 class="fw-bold">Complaint Progress</h6>
+
+                                    <h6 class="fw-bold mb-3">
+
+                                        Complaint Progress
+
+                                    </h6>
+
+
+                                    <div
+                                        class="progress"
+                                        style="height: 28px;"
+                                    >
+
+                                        {% if complaint[7] == "Pending" %}
+
+                                            <div
+                                                class="progress-bar bg-warning"
+                                                style="width:33%;"
+                                            >
+
+                                                Submitted
+
+                                            </div>
+
+                                        {% elif complaint[7] == "In Progress" %}
+
+                                            <div
+                                                class="progress-bar bg-info"
+                                                style="width:66%;"
+                                            >
+
+                                                In Progress
+
+                                            </div>
+
+                                        {% elif complaint[7] == "Resolved" %}
+
+                                            <div
+                                                class="progress-bar bg-success"
+                                                style="width:100%;"
+                                            >
+
+                                                Resolved ✔
+
+                                            </div>
+
+                                        {% elif complaint[7] == "Rejected" %}
+
+                                            <div
+                                                class="progress-bar bg-danger"
+                                                style="width:100%;"
+                                            >
+
+                                                Rejected
+
+                                            </div>
+
+                                        {% endif %}
+
+                                    </div>
+
+
+                                    <hr>
+
+
+                                    <h6 class="fw-bold mb-3">
+
+                                        Complaint Timeline
+
+                                    </h6>
+
 
                                     {% if complaint[7] == "Pending" %}
 
-                                    <div class="alert alert-warning">
-                                        🟡 Complaint Submitted → Pending
-                                    </div>
+                                        <div class="alert alert-warning">
+
+                                            🟡 Complaint Submitted → Pending
+
+                                        </div>
 
                                     {% elif complaint[7] == "In Progress" %}
 
-                                    <div class="alert alert-info">
-                                        🟡 Submitted
-                                        <br>
-                                        ⬇
-                                        <br>
-                                        🔵 In Progress
-                                    </div>
+                                        <div class="alert alert-info">
+
+                                            🟡 Submitted
+
+                                            <br>
+                                            ↓
+                                            <br>
+
+                                            🔵 In Progress
+
+                                        </div>
 
                                     {% elif complaint[7] == "Resolved" %}
 
-                                    <div class="alert alert-success">
-                                        🟡 Submitted
-                                        <br>
-                                        ⬇
-                                        <br>
-                                        🔵 In Progress
-                                        <br>
-                                        ⬇
-                                        <br>
-                                        🟢 Resolved
-                                    </div>
+                                        <div class="alert alert-success">
+
+                                            🟡 Submitted
+
+                                            <br>
+                                            ↓
+                                            <br>
+
+                                            🔵 In Progress
+
+                                            <br>
+                                            ↓
+                                            <br>
+
+                                            🟢 Resolved
+
+                                        </div>
 
                                     {% elif complaint[7] == "Rejected" %}
 
-                                    <div class="alert alert-danger">
-                                        🟡 Submitted
-                                        <br>
-                                        ⬇
-                                        <br>
-                                        ❌ Rejected
-                                    </div>
+                                        <div class="alert alert-danger">
+
+                                            🟡 Submitted
+
+                                            <br>
+                                            ↓
+                                            <br>
+
+                                            ❌ Rejected
+
+                                        </div>
 
                                     {% endif %}
-                                    <p><b>Admin Reply:</b> {{ complaint[10] if complaint[10] else "No reply yet" }}</p>
-                                    <p><b>Last Updated:</b> {{ complaint[11] if complaint[11] else "Not updated yet" }}</p>
-                                    <p><b>Date & Time:</b> {{ complaint[8] }} {{ complaint[9] }}</p>
+
+
+                                    <p>
+
+                                        <b>Admin Reply:</b>
+
+                                        {{ complaint[10] if complaint[10] else "No reply yet" }}
+
+                                    </p>
+
+
+                                    <p>
+
+                                        <b>Last Updated:</b>
+
+                                        {{ complaint[11] if complaint[11] else "Not updated yet" }}
+
+                                    </p>
+
+
+                                    <p>
+
+                                        <b>Date & Time:</b>
+
+                                        {{ complaint[8] }}
+                                        {{ complaint[9] }}
+
+                                    </p>
+
 
                                     {% if complaint[6] %}
+
                                         <hr>
-                                        <img src="{{ url_for('static', filename='uploads/' + complaint[6]) }}"
-                                             class="img-fluid rounded-3">
+
+                                        <h6 class="fw-bold mb-3">
+                                            Evidence
+                                        </h6>
+
+                                        <img
+                                            src="{{ url_for('static', filename='uploads/' + complaint[6]) }}"
+                                            class="img-fluid rounded-3"
+                                            alt="Complaint Evidence"
+                                        >
+
                                     {% endif %}
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     </div>
+
+
+                    <!-- ================= IMAGE MODAL ================= -->
 
                     {% if complaint[6] %}
-                    <div class="modal fade" id="imageModal{{ complaint[0] }}" tabindex="-1">
+
+                    <div
+                        class="modal fade"
+                        id="imageModal{{ complaint[0] }}"
+                        tabindex="-1"
+                        aria-hidden="true"
+                    >
+
                         <div class="modal-dialog modal-dialog-centered modal-lg">
-                            <div class="modal-content rounded-4">
+
+                            <div class="modal-content">
+
                                 <div class="modal-header">
-                                    <h5 class="modal-title">Complaint Evidence</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+                                    <h5 class="modal-title">
+
+                                        <i class="bi bi-image me-2"></i>
+
+                                        Complaint Evidence
+
+                                    </h5>
+
+                                    <button
+                                        type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"
+                                    ></button>
+
                                 </div>
-                                <div class="modal-body text-center">
-                                    <img src="{{ url_for('static', filename='uploads/' + complaint[6]) }}"
-                                         class="img-fluid rounded-3">
+
+                                <div class="modal-body text-center p-4">
+
+                                    <img
+                                        src="{{ url_for('static', filename='uploads/' + complaint[6]) }}"
+                                        class="img-fluid rounded-3"
+                                        alt="Complaint Evidence"
+                                    >
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     </div>
+
                     {% endif %}
 
-                {% else %}
-                    <tr>
-                        <td colspan="10" class="text-muted py-4">No complaints found.</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
 
-</div>
+                {% else %}
+
+                    <tr>
+
+                        <td
+                            colspan="10"
+                            class="empty-message"
+                        >
+
+                            <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+
+                            <strong>No complaints found.</strong>
+
+                            <div class="small mt-1">
+                                You have not submitted any complaints yet.
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
+
 </html>

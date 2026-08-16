@@ -1,138 +1,463 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Edit Profile | CampusFix</title>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
+    <style>
+        body {
+            background: #f4f7fb;
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            background: #ffffff !important;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .brand-box {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: #2166f3;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(33,102,243,0.25);
+        }
+
+        .brand-name {
+            color: #1765f5;
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .hero {
+            background: linear-gradient(110deg, #1768f5, #5148e8);
+            color: white;
+            border-radius: 24px;
+            padding: 42px 46px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(38,91,220,0.20);
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            right: -80px;
+            top: -120px;
+            background: rgba(255,255,255,0.10);
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.20);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: .5px;
+        }
+
+        .hero h1 {
+            font-size: 38px;
+            font-weight: 800;
+            margin-top: 18px;
+            margin-bottom: 8px;
+        }
+
+        .hero p {
+            margin: 0;
+            font-size: 17px;
+            opacity: .95;
+        }
+
+        .profile-card {
+            background: white;
+            border: 0;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(30,60,100,0.08);
+            overflow: hidden;
+        }
+
+        .section-title {
+            font-weight: 800;
+            color: #16213e;
+        }
+
+        .section-subtitle {
+            color: #71809b;
+        }
+
+        .photo-section {
+            background: #f7f9fd;
+            border: 1px solid #e3e9f5;
+            border-radius: 18px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .profile-photo {
+            width: 145px;
+            height: 145px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 8px 25px rgba(30,60,100,0.18);
+        }
+
+        .photo-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 15px;
+            color: #17213c;
+        }
+
+        .photo-info {
+            color: #7a879d;
+            font-size: 14px;
+        }
+
+        .form-label {
+            font-weight: 700;
+            color: #34415c;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            border: 1px solid #dce3ef;
+            border-radius: 12px;
+            padding: 12px 14px;
+            min-height: 48px;
+        }
+
+        .form-control:focus {
+            border-color: #2872f5;
+            box-shadow: 0 0 0 4px rgba(40,114,245,0.10);
+        }
+
+        .readonly-field {
+            background: #f3f6fa;
+            color: #69758a;
+        }
+
+        .btn-save {
+            background: #1768f5;
+            border: none;
+            color: white;
+            border-radius: 12px;
+            padding: 13px 25px;
+            font-weight: 700;
+        }
+
+        .btn-save:hover {
+            background: #0d57d7;
+            color: white;
+        }
+
+        .btn-cancel {
+            border: 1px solid #d7dfeb;
+            background: white;
+            color: #34415c;
+            border-radius: 12px;
+            padding: 13px 25px;
+            font-weight: 700;
+        }
+
+        .btn-cancel:hover {
+            background: #f4f7fb;
+        }
+
+        .required {
+            color: #e53935;
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 30px 25px;
+            }
+
+            .hero h1 {
+                font-size: 30px;
+            }
+
+            .brand-name {
+                font-size: 23px;
+            }
+        }
+    </style>
 </head>
 
-<body style="background:#f4f7fb;">
+<body>
 
-<nav class="navbar navbar-dark bg-primary px-4">
-    <a class="navbar-brand fw-bold" href="/student_dashboard">CampusFix</a>
-    <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+<!-- NAVBAR -->
+<nav class="navbar px-4 py-3">
+    <div class="container-fluid">
+
+        <a href="/student_dashboard"
+           class="text-decoration-none d-flex align-items-center gap-3">
+
+            <div class="brand-box">✓</div>
+
+            <div class="brand-name">
+                CampusFix
+            </div>
+
+        </a>
+
+        <div class="d-flex gap-2">
+
+            <a href="/profile"
+               class="btn btn-outline-primary">
+                Profile
+            </a>
+
+            <a href="/logout"
+               class="btn btn-primary">
+                Logout
+            </a>
+
+        </div>
+
+    </div>
 </nav>
 
-<div class="container mt-5">
 
-<div class="row justify-content-center">
+<div class="container py-4">
 
-<div class="col-md-7">
+    <!-- HERO -->
+    <div class="hero mb-4">
 
-<div class="card shadow border-0 rounded-4">
+        <div class="hero-badge">
+            ⚙ ACCOUNT SETTINGS
+        </div>
 
-<div class="card-header bg-primary text-white">
+        <h1>Edit Profile</h1>
 
-<h3>Edit Profile</h3>
+        <p>
+            Update your personal information and keep your CampusFix
+            account up to date.
+        </p>
+
+    </div>
+
+
+    <!-- MAIN CARD -->
+    <div class="profile-card p-4 p-md-5">
+
+        <div class="mb-4">
+
+            <h3 class="section-title mb-1">
+                Personal Information
+            </h3>
+
+            <p class="section-subtitle mb-0">
+                Update the information associated with your CampusFix account.
+            </p>
+
+        </div>
+
+
+        <form method="POST" enctype="multipart/form-data">
+
+
+            <!-- PROFILE PHOTO -->
+            <div class="photo-section mb-5">
+
+                {% if user[5] %}
+
+                    <img
+                        id="profilePreview"
+                        src="{{ url_for('static', filename='profile_photos/' + user[5]) }}"
+                        class="profile-photo">
+
+                {% else %}
+
+                    <img
+                        id="profilePreview"
+                        src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                        class="profile-photo">
+
+                {% endif %}
+
+                <div class="photo-title">
+                    Profile Photo
+                </div>
+
+                <div class="photo-info mb-3">
+                    JPG, JPEG or PNG • Recommended square image
+                </div>
+
+                <input
+                    type="file"
+                    name="profile_photo"
+                    id="profilePhoto"
+                    class="form-control mx-auto"
+                    style="max-width:460px;"
+                    accept=".jpg,.jpeg,.png">
+
+            </div>
+
+
+            <!-- FORM FIELDS -->
+            <div class="row g-4">
+
+                <!-- NAME -->
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Full Name <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="name"
+                        class="form-control"
+                        value="{{ user[0] }}"
+                        placeholder="Enter your full name"
+                        required>
+
+                </div>
+
+
+                <!-- EMAIL -->
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        class="form-control readonly-field"
+                        value="{{ user[1] }}"
+                        readonly>
+
+                </div>
+
+
+                <!-- MOBILE -->
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Mobile Number
+                    </label>
+
+                    <input
+                        type="tel"
+                        name="mobile"
+                        class="form-control"
+                        value="{{ user[2] if user[2] else '' }}"
+                        placeholder="Enter mobile number"
+                        pattern="[0-9]{10}"
+                        maxlength="10">
+
+                    <small class="text-muted">
+                        Enter a valid 10-digit mobile number.
+                    </small>
+
+                </div>
+
+
+                <!-- DEPARTMENT -->
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Department
+                    </label>
+
+                    <input
+                        type="text"
+                        name="department"
+                        class="form-control"
+                        value="{{ user[3] if user[3] else '' }}"
+                        placeholder="e.g. Computer Science">
+
+                </div>
+
+
+                <!-- STUDENT ID -->
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Student ID
+                    </label>
+
+                    <input
+                        type="text"
+                        name="student_id"
+                        class="form-control"
+                        value="{{ user[4] if user[4] else '' }}"
+                        placeholder="Enter student ID">
+
+                </div>
+
+            </div>
+
+
+            <!-- BUTTONS -->
+            <div class="d-flex justify-content-end gap-3 mt-5">
+
+                <a
+                    href="/profile"
+                    class="btn btn-cancel">
+
+                    Cancel
+
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-save">
+
+                    ✓ Save Changes
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
 
 </div>
 
-<div class="card-body p-4">
 
-<form method="POST" enctype="multipart/form-data">
+<!-- LIVE PHOTO PREVIEW -->
+<script>
 
-<div class="mb-3">
+document.getElementById("profilePhoto").addEventListener("change", function(event) {
 
-<label class="form-label">Full Name</label>
+    const file = event.target.files[0];
 
-<input
-type="text"
-name="name"
-class="form-control"
-value="{{ user[0] }}"
-required>
+    if (file) {
 
-</div>
+        const reader = new FileReader();
 
-<div class="mb-3">
+        reader.onload = function(e) {
 
-<label class="form-label">Email</label>
+            document.getElementById("profilePreview").src = e.target.result;
 
-<input
-type="email"
-class="form-control"
-value="{{ user[1] }}"
-readonly>
+        };
 
-</div>
+        reader.readAsDataURL(file);
+    }
 
-<div class="mb-3">
+});
 
-<label class="form-label">Mobile Number</label>
-
-<input
-type="text"
-name="mobile"
-class="form-control"
-value="{{ user[2] if user[2] else '' }}">
-
-</div>
-
-<div class="mb-3">
-
-<label class="form-label">Department</label>
-
-<input
-type="text"
-name="department"
-class="form-control"
-value="{{ user[3] if user[3] else '' }}">
-
-</div>
-
-<div class="mb-3">
-
-<label class="form-label">Student ID</label>
-
-<input
-type="text"
-name="student_id"
-class="form-control"
-value="{{ user[4] if user[4] else '' }}">
-
-</div>
-
-<div class="mb-3">
-
-    <label class="form-label">Profile Photo</label>
-
-    <input
-        type="file"
-        name="profile_photo"
-        class="form-control"
-        accept=".jpg,.jpeg,.png">
-
-</div>
-
-<div class="d-grid">
-
-<button class="btn btn-success">
-
-Update Profile
-
-</button>
-
-</div>
-
-</form>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
+</script>
 
 </body>
-
 </html>

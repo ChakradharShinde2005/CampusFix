@@ -1439,16 +1439,26 @@ def edit_profile():
 
     if request.method == "POST":
 
-        name = request.form["name"]
-        mobile = request.form["mobile"]
-        department = request.form["department"]
-        student_id = request.form["student_id"]
+        name = request.form.get("name", "").strip()
+        mobile = request.form.get("mobile", "").strip()
+        department = request.form.get("department", "").strip()
+        student_id = request.form.get("student_id", "").strip()
 
         photo = request.files.get("profile_photo")
 
-        filename = None
+        # Basic validation
+        if not name:
+            conn.close()
+            flash("Full Name is required.", "danger")
+            return redirect("/edit_profile")
 
-        if photo and photo.filename != "" and allowed_file(photo.filename):
+        # Check whether a new photo was uploaded
+        if photo and photo.filename != "":
+
+            if not allowed_file(photo.filename):
+                conn.close()
+                flash("Only JPG, JPEG and PNG images are allowed.", "danger")
+                return redirect("/edit_profile")
 
             filename = secure_filename(photo.filename)
 
@@ -1459,8 +1469,6 @@ def edit_profile():
                 )
             )
 
-        if filename:
-
             cursor.execute("""
                 UPDATE users
                 SET name=?,
@@ -1469,8 +1477,7 @@ def edit_profile():
                     student_id=?,
                     profile_photo=?
                 WHERE email=?
-            """,
-            (
+            """, (
                 name,
                 mobile,
                 department,
@@ -1488,8 +1495,7 @@ def edit_profile():
                     department=?,
                     student_id=?
                 WHERE email=?
-            """,
-            (
+            """, (
                 name,
                 mobile,
                 department,
@@ -1498,17 +1504,23 @@ def edit_profile():
             ))
 
         conn.commit()
-
-        session["name"] = name
-
         conn.close()
+
+        # Update session name
+        session["name"] = name
 
         flash("Profile updated successfully!", "success")
 
         return redirect("/profile")
 
+    # GET request
     cursor.execute("""
-        SELECT name,email,mobile,department,student_id
+        SELECT name,
+               email,
+               mobile,
+               department,
+               student_id,
+               profile_photo
         FROM users
         WHERE email=?
     """, (session["email"],))
@@ -1517,7 +1529,14 @@ def edit_profile():
 
     conn.close()
 
-    return render_template("edit_profile.html", user=user)
+    if not user:
+        flash("Profile not found.", "danger")
+        return redirect("/student_dashboard")
+
+    return render_template(
+        "edit_profile.html",
+        user=user
+    )
 @app.route("/change_password", methods=["GET", "POST"])
 def change_password():
     if "email" not in session:

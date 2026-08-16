@@ -2,110 +2,940 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My Profile | CampusFix</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <title>My Profile | CampusFix</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f5f8fd;
+            font-family: "Inter", "Segoe UI", Arial, sans-serif;
+            color: #172033;
+        }
+
+        /* ================= NAVBAR ================= */
+
+        .top-navbar {
+            height: 76px;
+            background: #ffffff;
+            border-bottom: 1px solid #e7edf5;
+            box-shadow: 0 3px 15px rgba(20, 40, 80, 0.04);
+
+            display: flex;
+            align-items: center;
+
+            padding: 0 6%;
+
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            text-decoration: none;
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+
+            background: #1769ff;
+            color: white;
+
+            border-radius: 12px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 22px;
+
+            box-shadow: 0 8px 20px rgba(23, 105, 255, 0.20);
+        }
+
+        .brand-name {
+            font-size: 25px;
+            font-weight: 800;
+            color: #1769ff;
+        }
+
+        .nav-actions {
+            margin-left: auto;
+
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+        }
+
+        .nav-btn {
+            border: 1px solid #e1e8f2;
+            background: white;
+            color: #26344b;
+
+            padding: 9px 16px;
+
+            border-radius: 10px;
+
+            text-decoration: none;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            transition: 0.25s ease;
+        }
+
+        .nav-btn:hover {
+            border-color: #1769ff;
+            color: #1769ff;
+            transform: translateY(-1px);
+        }
+
+        .logout-btn {
+            background: #1769ff;
+            color: white;
+            border-color: #1769ff;
+        }
+
+        .logout-btn:hover {
+            background: #0d5be8;
+            color: white;
+        }
+
+        /* ================= MAIN ================= */
+
+        .profile-container {
+            width: 88%;
+            max-width: 1250px;
+
+            margin: 38px auto 70px;
+        }
+
+        /* ================= HEADER ================= */
+
+        .profile-header {
+            position: relative;
+            overflow: hidden;
+
+            background: linear-gradient(135deg, #1769ff, #4b46e8);
+
+            color: white;
+
+            padding: 34px 40px;
+
+            border-radius: 24px;
+
+            box-shadow: 0 18px 45px rgba(23, 105, 255, 0.17);
+
+            margin-bottom: 28px;
+        }
+
+        .profile-header::after {
+            content: "";
+
+            position: absolute;
+
+            width: 280px;
+            height: 280px;
+
+            right: -90px;
+            top: -150px;
+
+            border-radius: 50%;
+
+            background: rgba(255,255,255,0.10);
+        }
+
+        .profile-header h1 {
+            position: relative;
+            z-index: 2;
+
+            margin: 0;
+
+            font-size: 31px;
+            font-weight: 800;
+        }
+
+        .profile-header p {
+            position: relative;
+            z-index: 2;
+
+            margin: 9px 0 0;
+
+            color: rgba(255,255,255,0.90);
+
+            font-size: 15px;
+        }
+
+        /* ================= PROFILE CARD ================= */
+
+        .profile-card {
+            background: #ffffff;
+
+            border: 1px solid #e6edf5;
+
+            border-radius: 22px;
+
+            padding: 30px;
+
+            box-shadow: 0 8px 28px rgba(25, 55, 90, 0.055);
+
+            height: 100%;
+        }
+
+        .profile-photo-area {
+            text-align: center;
+
+            padding-bottom: 25px;
+
+            border-bottom: 1px solid #edf1f6;
+
+            margin-bottom: 25px;
+        }
+
+        .profile-photo {
+            width: 145px;
+            height: 145px;
+
+            object-fit: cover;
+
+            border-radius: 50%;
+
+            border: 5px solid #edf4ff;
+
+            box-shadow: 0 10px 30px rgba(23, 105, 255, 0.13);
+        }
+
+        .profile-name {
+            margin-top: 17px;
+
+            margin-bottom: 4px;
+
+            font-size: 22px;
+            font-weight: 800;
+
+            color: #172033;
+        }
+
+        .profile-role {
+            color: #748198;
+
+            font-size: 14px;
+        }
+
+        /* ================= INFORMATION ================= */
+
+        .info-title {
+            font-size: 18px;
+
+            font-weight: 750;
+
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+
+            align-items: center;
+
+            gap: 13px;
+
+            padding: 13px 0;
+
+            border-bottom: 1px solid #f0f3f7;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-icon {
+            width: 38px;
+            height: 38px;
+
+            flex-shrink: 0;
+
+            border-radius: 10px;
+
+            background: #edf4ff;
+            color: #1769ff;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 17px;
+        }
+
+        .info-label {
+            display: block;
+
+            color: #7b879a;
+
+            font-size: 12px;
+
+            margin-bottom: 2px;
+        }
+
+        .info-value {
+            font-size: 14px;
+
+            font-weight: 650;
+
+            color: #26344b;
+
+            word-break: break-word;
+        }
+
+        /* ================= BUTTONS ================= */
+
+        .profile-actions {
+            margin-top: 25px;
+
+            display: grid;
+
+            gap: 10px;
+        }
+
+        .profile-btn {
+            border-radius: 11px;
+
+            padding: 11px 16px;
+
+            font-weight: 650;
+
+            text-decoration: none;
+
+            text-align: center;
+
+            transition: 0.25s ease;
+        }
+
+        .profile-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .edit-btn {
+            background: #1769ff;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #0d5be8;
+            color: white;
+        }
+
+        .password-btn {
+            background: #f2f5f9;
+            color: #26344b;
+
+            border: 1px solid #e0e7f0;
+        }
+
+        .password-btn:hover {
+            background: #e9eef6;
+            color: #1769ff;
+        }
+
+        .dashboard-btn {
+            background: white;
+            color: #1769ff;
+
+            border: 1px solid #cfdcf0;
+        }
+
+        .dashboard-btn:hover {
+            border-color: #1769ff;
+            background: #f5f9ff;
+        }
+
+        /* ================= STATISTICS ================= */
+
+        .stats-title {
+            margin-bottom: 18px;
+        }
+
+        .stats-title h2 {
+            margin: 0;
+
+            font-size: 22px;
+
+            font-weight: 800;
+        }
+
+        .stats-title p {
+            margin: 6px 0 0;
+
+            color: #77849a;
+
+            font-size: 14px;
+        }
+
+        .stats-grid {
+            display: grid;
+
+            grid-template-columns: repeat(3, 1fr);
+
+            gap: 18px;
+        }
+
+        .stat-card {
+            background: white;
+
+            border: 1px solid #e5ebf4;
+
+            border-radius: 18px;
+
+            padding: 24px;
+
+            min-height: 155px;
+
+            box-shadow: 0 8px 25px rgba(30, 55, 90, 0.045);
+
+            transition: 0.25s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+
+            box-shadow: 0 15px 32px rgba(30, 55, 90, 0.08);
+        }
+
+        .stat-icon {
+            width: 45px;
+            height: 45px;
+
+            border-radius: 13px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 21px;
+
+            margin-bottom: 17px;
+        }
+
+        .blue-icon {
+            background: #edf4ff;
+            color: #1769ff;
+        }
+
+        .yellow-icon {
+            background: #fff7df;
+            color: #d89600;
+        }
+
+        .green-icon {
+            background: #eaf9f1;
+            color: #15945a;
+        }
+
+        .stat-label {
+            color: #748198;
+
+            font-size: 13px;
+
+            font-weight: 650;
+
+            margin-bottom: 5px;
+        }
+
+        .stat-number {
+            font-size: 30px;
+
+            font-weight: 800;
+
+            color: #172033;
+        }
+
+        /* ================= ACCOUNT STATUS ================= */
+
+        .account-status {
+            margin-top: 20px;
+
+            background: #f8fbff;
+
+            border: 1px solid #e0eafa;
+
+            border-radius: 16px;
+
+            padding: 18px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 13px;
+        }
+
+        .status-icon {
+            width: 40px;
+            height: 40px;
+
+            border-radius: 11px;
+
+            background: #eaf9f1;
+            color: #15945a;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .account-status strong {
+            display: block;
+
+            font-size: 14px;
+        }
+
+        .account-status span {
+            color: #748198;
+
+            font-size: 12px;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 900px) {
+
+            .profile-container {
+                width: 92%;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media (max-width: 700px) {
+
+            .top-navbar {
+                padding: 0 4%;
+            }
+
+            .brand-name {
+                font-size: 21px;
+            }
+
+            .nav-btn {
+                padding: 9px 11px;
+            }
+
+            .nav-btn span {
+                display: none;
+            }
+
+            .profile-container {
+                margin-top: 25px;
+            }
+
+            .profile-header {
+                padding: 27px;
+            }
+
+            .profile-header h1 {
+                font-size: 25px;
+            }
+
+            .profile-card {
+                padding: 22px;
+            }
+
+        }
+
+    </style>
 </head>
 
-<body style="background:#f4f7fb;">
+<body>
 
-<nav class="navbar navbar-dark bg-primary px-4">
-    <a class="navbar-brand fw-bold" href="/student_dashboard">CampusFix</a>
-    <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+<!-- ================= NAVBAR ================= -->
+
+<nav class="top-navbar">
+
+    <a href="/student_dashboard" class="brand">
+
+        <div class="brand-icon">
+            <i class="bi bi-check-lg"></i>
+        </div>
+
+        <span class="brand-name">
+            CampusFix
+        </span>
+
+    </a>
+
+    <div class="nav-actions">
+
+        <a href="/student_dashboard" class="nav-btn">
+            <i class="bi bi-grid"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="/my_complaints" class="nav-btn">
+            <i class="bi bi-list-check"></i>
+            <span>Complaints</span>
+        </a>
+
+        <a href="/logout" class="nav-btn logout-btn">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Logout</span>
+        </a>
+
+    </div>
+
 </nav>
 
-<div class="container mt-4">
 
-    <div class="bg-primary text-white p-4 rounded-4 mb-4">
-        <h2>My Profile</h2>
-        <p class="mb-0">View your account details and complaint summary.</p>
-    </div>
+<!-- ================= MAIN ================= -->
+
+<main class="profile-container">
+
+    <!-- HEADER -->
+
+    <section class="profile-header">
+
+        <h1>
+            <i class="bi bi-person-circle me-2"></i>
+            My Profile
+        </h1>
+
+        <p>
+            View and manage your CampusFix account information and complaint activity.
+        </p>
+
+    </section>
+
 
     <div class="row g-4">
 
-        <div class="col-md-5">
-            <div class="card shadow border-0 rounded-4 p-4">
+        <!-- ================= LEFT PROFILE ================= -->
 
-                <div class="text-center mb-3">
+        <div class="col-lg-5">
 
-                {% if profile[3] %}
+            <div class="profile-card">
 
-                <img
-                    src="{{ url_for('static', filename='profile_photos/' + profile[3]) }}"
-                    class="rounded-circle border shadow"
-                    width="150"
-                    height="150"
-                    style="object-fit:cover;">
+                <div class="profile-photo-area">
 
-                {% else %}
+                    {% if profile[3] %}
 
-                <img
-                    src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-                    class="rounded-circle border shadow"
-                    width="150"
-                    height="150">
+                        <img
+                            src="{{ url_for('static', filename='profile_photos/' + profile[3]) }}"
+                            class="profile-photo"
+                            alt="Profile Photo">
 
-                {% endif %}
+                    {% else %}
+
+                        <img
+                            src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                            class="profile-photo"
+                            alt="Default Profile">
+
+                    {% endif %}
+
+                    <div class="profile-name">
+                        {{ name }}
+                    </div>
+
+                    <div class="profile-role">
+                        <i class="bi bi-shield-check me-1"></i>
+                        {{ role }}
+                    </div>
 
                 </div>
-                <h4>Account Information</h4>
-                <hr>
 
-                <p><b>Name:</b> {{ name }}</p>
-                <p><b>Email:</b> {{ email }}</p>
-                <p><b>Role:</b> {{ role }}</p>
 
-                <p><b>Mobile:</b> {{ profile[0] if profile[0] else "Not Added" }}</p>
+                <div class="info-title">
+                    Account Information
+                </div>
 
-                <p><b>Department:</b> {{ profile[1] if profile[1] else "Not Added" }}</p>
 
-                <p><b>Student ID:</b> {{ profile[2] if profile[2] else "Not Added" }}</p>
+                <div class="info-item">
 
-                <a href="/edit_profile" class="btn btn-warning w-100 mt-3">
-                    Edit Profile
-                </a>
+                    <div class="info-icon">
+                        <i class="bi bi-person"></i>
+                    </div>
 
-                <a href="/change_password" class="btn btn-primary w-100 mt-3">
-                    Change Password
-                </a>
+                    <div>
+                        <span class="info-label">
+                            Full Name
+                        </span>
 
-                <a href="/student_dashboard" class="btn btn-secondary w-100 mt-2">
-                    Back to Dashboard
-                </a>
+                        <span class="info-value">
+                            {{ name }}
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <div class="info-icon">
+                        <i class="bi bi-envelope"></i>
+                    </div>
+
+                    <div>
+                        <span class="info-label">
+                            Email Address
+                        </span>
+
+                        <span class="info-value">
+                            {{ email }}
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <div class="info-icon">
+                        <i class="bi bi-telephone"></i>
+                    </div>
+
+                    <div>
+                        <span class="info-label">
+                            Mobile Number
+                        </span>
+
+                        <span class="info-value">
+                            {{ profile[0] if profile[0] else "Not Added" }}
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <div class="info-icon">
+                        <i class="bi bi-building"></i>
+                    </div>
+
+                    <div>
+                        <span class="info-label">
+                            Department
+                        </span>
+
+                        <span class="info-value">
+                            {{ profile[1] if profile[1] else "Not Added" }}
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <div class="info-icon">
+                        <i class="bi bi-person-vcard"></i>
+                    </div>
+
+                    <div>
+                        <span class="info-label">
+                            Student ID
+                        </span>
+
+                        <span class="info-value">
+                            {{ profile[2] if profile[2] else "Not Added" }}
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <div class="account-status">
+
+                    <div class="status-icon">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+
+                    <div>
+                        <strong>Account Active</strong>
+                        <span>Your CampusFix account is currently active.</span>
+                    </div>
+
+                </div>
+
+
+                <!-- ACTION BUTTONS -->
+
+                <div class="profile-actions">
+
+                    <a href="/edit_profile" class="profile-btn edit-btn">
+                        <i class="bi bi-pencil-square me-1"></i>
+                        Edit Profile
+                    </a>
+
+                    <a href="/change_password" class="profile-btn password-btn">
+                        <i class="bi bi-shield-lock me-1"></i>
+                        Change Password
+                    </a>
+
+                    <a href="/student_dashboard" class="profile-btn dashboard-btn">
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Back to Dashboard
+                    </a>
+
+                </div>
+
             </div>
+
         </div>
 
-        <div class="col-md-7">
-            <div class="row g-4">
 
-                <div class="col-md-4">
-                    <div class="card shadow border-0 rounded-4 text-center p-4">
-                        <h5>Total</h5>
-                        <h2>{{ total_complaints }}</h2>
+        <!-- ================= RIGHT SIDE ================= -->
+
+        <div class="col-lg-7">
+
+            <div class="stats-title">
+
+                <h2>
+                    Complaint Summary
+                </h2>
+
+                <p>
+                    Overview of your complaint activity on CampusFix.
+                </p>
+
+            </div>
+
+
+            <div class="stats-grid">
+
+                <!-- TOTAL -->
+
+                <div class="stat-card">
+
+                    <div class="stat-icon blue-icon">
+                        <i class="bi bi-file-earmark-text"></i>
                     </div>
+
+                    <div class="stat-label">
+                        Total Complaints
+                    </div>
+
+                    <div class="stat-number">
+                        {{ total_complaints }}
+                    </div>
+
                 </div>
 
-                <div class="col-md-4">
-                    <div class="card shadow border-0 rounded-4 text-center p-4">
-                        <h5>Pending</h5>
-                        <h2 class="text-warning">{{ pending_complaints }}</h2>
+
+                <!-- PENDING -->
+
+                <div class="stat-card">
+
+                    <div class="stat-icon yellow-icon">
+                        <i class="bi bi-hourglass-split"></i>
                     </div>
+
+                    <div class="stat-label">
+                        Pending Complaints
+                    </div>
+
+                    <div class="stat-number">
+                        {{ pending_complaints }}
+                    </div>
+
                 </div>
 
-                <div class="col-md-4">
-                    <div class="card shadow border-0 rounded-4 text-center p-4">
-                        <h5>Resolved</h5>
-                        <h2 class="text-success">{{ resolved_complaints }}</h2>
+
+                <!-- RESOLVED -->
+
+                <div class="stat-card">
+
+                    <div class="stat-icon green-icon">
+                        <i class="bi bi-check-circle"></i>
                     </div>
+
+                    <div class="stat-label">
+                        Resolved Complaints
+                    </div>
+
+                    <div class="stat-number">
+                        {{ resolved_complaints }}
+                    </div>
+
                 </div>
 
             </div>
+
+
+            <!-- QUICK INFO -->
+
+            <div class="profile-card mt-4">
+
+                <div class="info-title">
+                    <i class="bi bi-info-circle me-2"></i>
+                    CampusFix Account
+                </div>
+
+                <p class="text-muted mb-3">
+                    Use your profile to manage personal information and account security.
+                </p>
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+
+                        <div class="p-3 rounded-3"
+                             style="background:#f7f9fc;border:1px solid #e7edf5;">
+
+                            <small class="text-muted d-block">
+                                Account Role
+                            </small>
+
+                            <strong>
+                                {{ role }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <div class="p-3 rounded-3"
+                             style="background:#f7f9fc;border:1px solid #e7edf5;">
+
+                            <small class="text-muted d-block">
+                                Complaint System
+                            </small>
+
+                            <strong>
+                                CampusFix
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
 
     </div>
 
-</div>
+</main>
 
 </body>
 </html>
